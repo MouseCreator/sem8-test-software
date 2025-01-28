@@ -1,4 +1,4 @@
-package mouse.univ;
+package mouse.univ.ui;
 
 public interface UserInput {
     int getInteger(String prompt);

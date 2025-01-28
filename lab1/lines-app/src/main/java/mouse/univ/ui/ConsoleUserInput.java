@@ -1,4 +1,4 @@
-package mouse.univ;
+package mouse.univ.ui;
 
 import java.io.PrintStream;
 import java.util.Scanner;
@@ -39,12 +39,15 @@ public class ConsoleUserInput implements UserInput {
 
     @Override
     public int getRangedInteger(String prompt, int range) {
+        if (range < 0) {
+            throw new IllegalArgumentException("Given range of the integer is expected to be non-negative");
+        }
         printPrompt(prompt);
         int result;
         String err = String.format("Unexpected input; consider entering decimal integer value within range of [-%d, %d]", range, range);
         while (true) {
             result = getIntegerOrPrintError(err);
-            if (result > range) {
+            if (result <= range) {
                 return result;
             } else {
                 output.println(err);

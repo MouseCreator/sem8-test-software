@@ -1,4 +1,4 @@
-package mouse.univ;
+package mouse.univ.common;
 
 public class Numbers {
     public static final double ACCURACY = 1e-8;
