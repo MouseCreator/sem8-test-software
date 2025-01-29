@@ -110,7 +110,7 @@ public class UIEngine {
             }
             try {
                 int result = Integer.parseInt(string);
-                if (result > Numbers.BOX_SIZE) {
+                if (Numbers.isOutOfRange(result)) {
                     String err = String.format("Provided integer is out of bounds of allowed box: [-%f, %f]", Numbers.BOX_SIZE, Numbers.BOX_SIZE);
                     printStream.println(err);
                 } else {
