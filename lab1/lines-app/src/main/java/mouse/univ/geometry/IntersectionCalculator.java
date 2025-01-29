@@ -57,7 +57,7 @@ public class IntersectionCalculator {
             if (relative.equals(LinesRelativePosition.INTERSECT) && intersection == null) {
                 throw new IllegalStateException("Line intersection result mark as INTERSECT, but doesnt have the intersection point");
             }
-            if (relative.equals(LinesRelativePosition.INTERSECT) || relative.equals(LinesRelativePosition.SAME_LINE)) {
+            if (relative.equals(LinesRelativePosition.PARALLEL) || relative.equals(LinesRelativePosition.SAME_LINE)) {
                 throw new IllegalStateException("Trying to get intersection point for lines that do not intersect");
             }
             return intersection;

@@ -1,7 +1,9 @@
 package mouse.univ.ui;
 
+import java.io.PrintStream;
+
 public interface UserInput {
-    int getInteger(String prompt);
-    int getRangedInteger(String prompt, int range);
-    int getInteger();
+    String getString();
+    String getString(String prompt);
+    PrintStream getPrintStream();
 }

@@ -11,55 +11,36 @@ public class ConsoleUserInput implements UserInput {
         this.output = outputStream;
     }
 
-    private void askForInput() {
-        output.print("> ");
+    private void askForInput(String prompt) {
+        if (prompt == null || prompt.isEmpty()) {
+            output.print("> ");
+        } else {
+            output.print(prompt + " > ");
+        }
     }
 
     @Override
-    public int getInteger(String prompt) {
-        printPrompt(prompt);
-        return getInteger();
+    public String getString() {
+        return getString(null);
     }
 
-    public int getInteger() {
-        return getIntegerOrPrintError("Unexpected input; consider entering decimal integer value.");
-    }
-    private int getIntegerOrPrintError(String message) {
-        askForInput();
+    @Override
+    public String getString(String prompt) {
+        askForInput(prompt);
         while (true) {
             String line = scanner.nextLine();
-            try {
-                return Integer.parseInt(line);
-            } catch (Exception e) {
-                output.println(message);
-                askForInput();
+            if (line.isEmpty()) {
+                output.println("Empty input; consider entering a non-empty string.");
+                continue;
             }
+            return line;
         }
     }
 
     @Override
-    public int getRangedInteger(String prompt, int range) {
-        if (range < 0) {
-            throw new IllegalArgumentException("Given range of the integer is expected to be non-negative");
-        }
-        printPrompt(prompt);
-        int result;
-        String err = String.format("Unexpected input; consider entering decimal integer value within range of [-%d, %d]", range, range);
-        while (true) {
-            result = getIntegerOrPrintError(err);
-            if (result <= range) {
-                return result;
-            } else {
-                output.println(err);
-            }
-        }
-
+    public PrintStream getPrintStream() {
+        return output;
     }
 
-    private void printPrompt(String prompt) {
-        if (prompt != null && !prompt.isEmpty()) {
-            output.println(prompt);
-        }
-    }
 
 }
