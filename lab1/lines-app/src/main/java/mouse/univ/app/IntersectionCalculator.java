@@ -1,4 +1,4 @@
-package mouse.univ.ui;
+package mouse.univ.app;
 
 import mouse.univ.common.Messages;
 import mouse.univ.common.Numbers;
@@ -13,10 +13,16 @@ public class IntersectionCalculator {
     public IntersectionCalculator(UserIO userIO) {
         this.userIO = userIO;
     }
-    public void calculate() throws TerminatedException {
-        List<GenericLine> arguments = defineArguments();
+    public String calculate() {
+        List<GenericLine> arguments;
+        try {
+            arguments = defineArguments();
+        } catch (TerminatedException e) {
+            return Messages.terminated();
+        }
         String result = getIntersections(arguments.get(0), arguments.get(1), arguments.get(2));
         userIO.println(result);
+        return result;
     }
 
     private List<GenericLine> defineArguments() throws TerminatedException {
@@ -29,7 +35,7 @@ public class IntersectionCalculator {
                 LineByPointArgs line1Args = lineByTwoPoints();
                 line1 = line1Args.toLine();
             } catch (InvalidLineException e) {
-                onInvalidLineEntered(e);
+                onInvalidLineEntered(e.getMessage());
             }
         }
         userIO.println("Define LINE 2 by two segments. A - intersection with x axis, B - intersection with y axis");
@@ -39,7 +45,7 @@ public class IntersectionCalculator {
                 line2Args = lineByTwoSegments();
                 line2 = line2Args.toLine();
             } catch (InvalidLineException e) {
-                onInvalidLineEntered(e);
+                onInvalidLineEntered(e.getMessage());
             }
         }
         userIO.println("Define LINE 3 by two segments. A - intersection with x axis, B - intersection with y axis.\nThis line cannot match LINE 2.");
@@ -47,12 +53,12 @@ public class IntersectionCalculator {
             try {
                 LineBySegmentsArgs line3Args = lineByTwoSegments();
                 if (line3Args.equals(line2Args)) {
-                    onInvalidLineEntered(new InvalidLineException("LINE 3 cannot match LINE 2!"));
+                    onInvalidLineEntered("LINE 3 cannot match LINE 2!");
                     continue;
                 }
                 line3 = line3Args.toLine();
             } catch (InvalidLineException e) {
-                onInvalidLineEntered(e);
+                onInvalidLineEntered(e.getMessage());
             }
         }
         return List.of(line1, line2, line3);
@@ -80,8 +86,8 @@ public class IntersectionCalculator {
         int b = provideRangedIntOrTerminate("B");
         return new LineBySegmentsArgs(a, b);
     }
-    private void onInvalidLineEntered(InvalidLineException e) {
-        userIO.println(e.getMessage());
+    private void onInvalidLineEntered(String message) {
+        userIO.println(message);
         userIO.println("Enter the line arguments again, please!");
     }
 
@@ -109,7 +115,7 @@ public class IntersectionCalculator {
         }
     }
 
-    public String getIntersections(GenericLine line1, GenericLine line2, GenericLine line3) {
+    private String getIntersections(GenericLine line1, GenericLine line2, GenericLine line3) {
         LineIntersectionResult lines1_2Pos = checkLinesIntersect(line1, line2);
         LineIntersectionResult lines1_3Pos = checkLinesIntersect(line1, line3);
         if (lines1_2Pos.isSameLine()) {

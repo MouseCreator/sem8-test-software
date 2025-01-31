@@ -1,4 +1,4 @@
-package mouse.univ.ui;
+package mouse.univ.app;
 
 public interface UserIO {
     String getString();

@@ -1,4 +1,4 @@
-package mouse.univ.ui;
+package mouse.univ.app;
 
 import java.io.PrintStream;
 import java.util.Scanner;

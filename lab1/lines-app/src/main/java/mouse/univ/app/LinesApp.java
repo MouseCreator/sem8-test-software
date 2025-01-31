@@ -1,4 +1,6 @@
-package mouse.univ.ui;
+package mouse.univ.app;
+
+import mouse.univ.common.Messages;
 
 import java.util.Scanner;
 
@@ -6,10 +8,10 @@ public class LinesApp {
     public static void main(String[] args) {
         ConsoleUserIO consoleUserInput = new ConsoleUserIO(System.out, new Scanner(System.in));
         IntersectionCalculator intersectionCalculator = new IntersectionCalculator(consoleUserInput);
+        printHelp(consoleUserInput);
         while (true) {
-            try {
-                intersectionCalculator.calculate();
-            } catch (TerminatedException e) {
+            String result = intersectionCalculator.calculate();
+            if (result.equals(Messages.terminated())) {
                 break;
             }
         }

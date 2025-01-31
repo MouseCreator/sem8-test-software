@@ -43,4 +43,7 @@ public class Messages {
     }
 
 
+    public static String terminated() {
+        return "Terminated";
+    }
 }
