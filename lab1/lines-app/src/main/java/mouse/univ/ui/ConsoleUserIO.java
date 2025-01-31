@@ -3,10 +3,10 @@ package mouse.univ.ui;
 import java.io.PrintStream;
 import java.util.Scanner;
 
-public class ConsoleUserInput implements UserInput {
+public class ConsoleUserIO implements UserIO {
     private final PrintStream output;
     private final Scanner scanner;
-    public ConsoleUserInput(PrintStream outputStream, Scanner scanner) {
+    public ConsoleUserIO(PrintStream outputStream, Scanner scanner) {
         this.scanner = scanner;
         this.output = outputStream;
     }
@@ -38,9 +38,13 @@ public class ConsoleUserInput implements UserInput {
     }
 
     @Override
-    public PrintStream getPrintStream() {
-        return output;
+    public void print(String message) {
+        output.print(message);
     }
 
+    @Override
+    public void println(String message) {
+        output.println(message);
+    }
 
 }

@@ -47,6 +47,7 @@ public final class GenericLine {
     }
 
 
+
     public static GenericLine fromTwoSegments(double xSegmentLength, double ySegmentLength) {
         if (Numbers.isZero(xSegmentLength) || Numbers.isZero(ySegmentLength)) {
             throw new InvalidLineException("Invalid line: a line cannot be defined by two segments, when at least one of the segments is zero; Consider entering non-zero values.");
@@ -56,5 +57,4 @@ public final class GenericLine {
         double c = -1.0;
         return new GenericLine(a, b, c);
     }
-
 }

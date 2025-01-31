@@ -2,7 +2,7 @@ package mouse.univ.common;
 
 public class Numbers {
     public static final double ACCURACY = 1e-8;
-    public static final double BOX_SIZE = 122;
+    public static final int BOX_SIZE = 122;
     public static boolean isZero(double number) {
         return Math.abs(number) < ACCURACY;
     }

@@ -1,11 +1,114 @@
-package mouse.univ.geometry;
+package mouse.univ.ui;
 
 import mouse.univ.common.Messages;
 import mouse.univ.common.Numbers;
+import mouse.univ.geometry.GenericLine;
+import mouse.univ.geometry.InvalidLineException;
+import mouse.univ.geometry.Point;
 
 import java.util.List;
 
 public class IntersectionCalculator {
+    private final UserIO userIO;
+    public IntersectionCalculator(UserIO userIO) {
+        this.userIO = userIO;
+    }
+    public void calculate() throws TerminatedException {
+        List<GenericLine> arguments = defineArguments();
+        String result = getIntersections(arguments.get(0), arguments.get(1), arguments.get(2));
+        userIO.println(result);
+    }
+
+    private List<GenericLine> defineArguments() throws TerminatedException {
+        GenericLine line1 = null;
+        GenericLine line2 = null;
+        GenericLine line3 = null;
+        userIO.println("Define LINE 1 by two points (X1; Y1), (X2; Y2)");
+        while (line1 == null) {
+            try {
+                LineByPointArgs line1Args = lineByTwoPoints();
+                line1 = line1Args.toLine();
+            } catch (InvalidLineException e) {
+                onInvalidLineEntered(e);
+            }
+        }
+        userIO.println("Define LINE 2 by two segments. A - intersection with x axis, B - intersection with y axis");
+        LineBySegmentsArgs line2Args = null;
+        while (line2 == null) {
+            try {
+                line2Args = lineByTwoSegments();
+                line2 = line2Args.toLine();
+            } catch (InvalidLineException e) {
+                onInvalidLineEntered(e);
+            }
+        }
+        userIO.println("Define LINE 3 by two segments. A - intersection with x axis, B - intersection with y axis.\nThis line cannot match LINE 2.");
+        while (line3 == null) {
+            try {
+                LineBySegmentsArgs line3Args = lineByTwoSegments();
+                if (line3Args.equals(line2Args)) {
+                    onInvalidLineEntered(new InvalidLineException("LINE 3 cannot match LINE 2!"));
+                    continue;
+                }
+                line3 = line3Args.toLine();
+            } catch (InvalidLineException e) {
+                onInvalidLineEntered(e);
+            }
+        }
+        return List.of(line1, line2, line3);
+    }
+
+    private record LineByPointArgs(int x1, int y1, int x2, int y2) {
+        GenericLine toLine() {
+            return GenericLine.fromTwoPoints(new Point(x1, y1), new Point(x2, y2));
+        }
+    }
+    private record LineBySegmentsArgs(int a, int b) {
+        GenericLine toLine() {
+            return GenericLine.fromTwoSegments(a, b);
+        }
+    }
+    private LineByPointArgs lineByTwoPoints() throws TerminatedException {
+        int x1 = provideRangedIntOrTerminate("X1");
+        int y1 = provideRangedIntOrTerminate("Y1");
+        int x2 = provideRangedIntOrTerminate("X2");
+        int y2 = provideRangedIntOrTerminate("Y2");
+        return new LineByPointArgs(x1, y1, x2, y2);
+    }
+    private LineBySegmentsArgs lineByTwoSegments() throws TerminatedException {
+        int a = provideRangedIntOrTerminate("A");
+        int b = provideRangedIntOrTerminate("B");
+        return new LineBySegmentsArgs(a, b);
+    }
+    private void onInvalidLineEntered(InvalidLineException e) {
+        userIO.println(e.getMessage());
+        userIO.println("Enter the line arguments again, please!");
+    }
+
+    private int provideRangedIntOrTerminate(String prompt) throws TerminatedException {
+        while (true) {
+            String string = userIO.getString(prompt);
+            if (string.isEmpty()) {
+                userIO.println("No input; Please, enter a valid ");
+                continue;
+            }
+            if (string.trim().equalsIgnoreCase("e")) {
+                throw new TerminatedException();
+            }
+            try {
+                int result = Integer.parseInt(string);
+                if (Numbers.isOutOfRange(result)) {
+                    String err = String.format("Provided integer is out of bounds of the allowed box: [-%d, %d]", Numbers.BOX_SIZE, Numbers.BOX_SIZE);
+                    userIO.println(err);
+                } else {
+                    return result;
+                }
+            } catch (Exception e) {
+                userIO.println("Invalid input; Please, enter a decimal integer value.");
+            }
+        }
+    }
+
     public String getIntersections(GenericLine line1, GenericLine line2, GenericLine line3) {
         LineIntersectionResult lines1_2Pos = checkLinesIntersect(line1, line2);
         LineIntersectionResult lines1_3Pos = checkLinesIntersect(line1, line3);
@@ -105,4 +208,5 @@ public class IntersectionCalculator {
                 ? new LineIntersectionResult(LinesRelativePosition.SAME_LINE, null)
                 : new LineIntersectionResult(LinesRelativePosition.PARALLEL, null);
     }
+
 }
