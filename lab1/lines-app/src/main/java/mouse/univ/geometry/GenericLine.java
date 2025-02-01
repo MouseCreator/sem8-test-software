@@ -29,14 +29,14 @@ public final class GenericLine {
     public double c() {
         return c;
     }
-    public static GenericLine fromGenericEquation(double a, double b, double c) {
+    public static GenericLine fromGenericEquation(double a, double b, double c) throws InvalidLineException {
         if (Numbers.isZero(a) && Numbers.isZero(b)) {
             throw new InvalidLineException("Invalid line: both A and B arguments in line equation 'Ax + By + C = 0' are zero; Consider entering non-zero values for A and B.");
         }
         return new GenericLine(a, b, c);
     }
 
-    public static GenericLine fromTwoPoints(Point point1, Point point2) {
+    public static GenericLine fromTwoPoints(Point point1, Point point2) throws InvalidLineException {
         if (point1.isCloseTo(point2)) {
             throw new InvalidLineException("Invalid line: a line cannot be defined by two points, located at the same position; Consider entering different points to construct a line.");
         }
@@ -48,7 +48,7 @@ public final class GenericLine {
 
 
 
-    public static GenericLine fromTwoSegments(double xSegmentLength, double ySegmentLength) {
+    public static GenericLine fromTwoSegments(double xSegmentLength, double ySegmentLength) throws InvalidLineException {
         if (Numbers.isZero(xSegmentLength) || Numbers.isZero(ySegmentLength)) {
             throw new InvalidLineException("Invalid line: a line cannot be defined by two segments, when at least one of the segments is zero; Consider entering non-zero values.");
         }

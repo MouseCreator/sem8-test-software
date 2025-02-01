@@ -5,43 +5,45 @@ import java.util.Collection;
 import java.util.List;
 
 public class PreparedAutomaticUserIO implements AutomaticUserIO {
+    private enum RecordType {
+        PROMPT, OUTPUT, INPUT
+    }
+    private record RecordedMessage(RecordType type, String value) {
+    }
     private final List<String> preparedInputs;
-    private final List<String> recordedOutputs;
+    private final List<RecordedMessage> recordedMessages;
     public PreparedAutomaticUserIO() {
         preparedInputs = new ArrayList<>();
-        recordedOutputs = new ArrayList<>();
+        recordedMessages = new ArrayList<>();
     }
 
     @Override
     public String getString() {
-        if (preparedInputs.isEmpty()) {
-            throw new IllegalStateException("No input prepared, when asked for a string");
-        }
-        String input = preparedInputs.removeFirst();
-        String log = "> " + input;
-        recordedOutputs.add(log);
-        return input;
+       return getString("");
     }
 
     @Override
     public String getString(String prompt) {
         if (preparedInputs.isEmpty()) {
-            throw new IllegalStateException("No input prepared, when asked for a string with prompt: " + prompt);
+            throw new OutOfInputsException("No input prepared, when asked for a string with prompt: '" + prompt + "'");
         }
         String input = preparedInputs.removeFirst();
-        String log = prompt + " > " + input;
-        recordedOutputs.add(log);
+        if (input.equals("THROW")) {
+            throw new UnexpectedInputException("Unexpected Error!");
+        }
+        recordedMessages.add(new RecordedMessage(RecordType.PROMPT, prompt));
+        recordedMessages.add(new RecordedMessage(RecordType.INPUT, input));
         return input;
     }
 
     @Override
     public void print(String message) {
-        recordedOutputs.add(message);
+        recordedMessages.add(new RecordedMessage(RecordType.OUTPUT, message));
     }
 
     @Override
     public void println(String message) {
-        recordedOutputs.add(message + '\n');
+        recordedMessages.add(new RecordedMessage(RecordType.OUTPUT, message + '\n'));
     }
 
     @Override
@@ -49,5 +51,24 @@ public class PreparedAutomaticUserIO implements AutomaticUserIO {
         preparedInputs.addAll(inputs);
     }
 
-
+    @Override
+    public String getLastOutput() {
+        int lastInputIndex = recordedMessages.size() - 1;
+        while (lastInputIndex >= 0) {
+            RecordedMessage message = recordedMessages.get(lastInputIndex);
+            if (message.type() == RecordType.OUTPUT) {
+                lastInputIndex--;
+            } else {
+                break;
+            }
+        }
+        int firstOutputIndex = lastInputIndex + 1;
+        StringBuilder builder = new StringBuilder();
+        for (int i = firstOutputIndex; i < recordedMessages.size(); i++) {
+            int recordIndex = firstOutputIndex + i;
+            RecordedMessage outputMessage = recordedMessages.get(recordIndex);
+            builder.append(outputMessage.value());
+        }
+        return builder.toString();
+    }
 }

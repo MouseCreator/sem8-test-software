@@ -79,43 +79,82 @@ class IntersectionCalculatorTest {
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
         assertEquals(Messages.terminated(), result);
+        assertEquals("Exiting...\n", userInput.getLastOutput());
+    }
+
+    @ParameterizedTest
+    @DisplayName("OK: Restarted")
+    @CsvFileSource
+    void calculate_restarted(List<String> inputs) {
+        userInput.supply(inputs);
+        String result = intersectionCalculator.calculate();
+        assertEquals(Messages.restarted(), result);
+        assertEquals("Restarting...\nDefine LINE 1 by two points (X1; Y1), (X2; Y2)\n", userInput.getLastOutput());
+    }
+
+    @ParameterizedTest
+    @DisplayName("ERROR: Unexpected Error")
+    @CsvFileSource
+    void calculate_exception(List<String> inputs) {
+        runPartialTest(inputs);
+        assertEquals("ERROR: Unexpected Error!\nDefine LINE 1 by two points (X1; Y1), (X2; Y2)\n", userInput.getLastOutput());
     }
 
     @ParameterizedTest
     @DisplayName("ERROR: Missing input")
     @CsvFileSource
     void calculate_missingInput(List<String> inputs) {
-
+        runPartialTest(inputs);
+        assertEquals("No input; Please, enter a valid decimal integer number.\n", userInput.getLastOutput());
     }
 
     @ParameterizedTest
     @DisplayName("ERROR: Input is not a number")
     @CsvFileSource
     void calculate_invalidInput(List<String> inputs) {
+        runPartialTest(inputs);
+        assertEquals("No input; Please, enter a valid decimal integer number.\n", userInput.getLastOutput());
     }
 
     @ParameterizedTest
     @DisplayName("ERROR: Input is out of bounds")
     @CsvFileSource
     void calculate_outOfBounds(List<String> inputs) {
+        runPartialTest(inputs);
+        assertEquals("Provided integer is out of bounds of the allowed box: [-122, 122]\n", userInput.getLastOutput());
     }
 
     @ParameterizedTest
     @DisplayName("ERROR: Line 1 does not exist")
     @CsvFileSource
     void calculate_line1Invalid(List<String> inputs) {
+        runPartialTest(inputs);
+        String expectedMessage =
+                "Invalid line: a line cannot be defined by two points, located at the same position; Consider entering different points to construct a line.\n" +
+                "Enter the line arguments again, please!\n";
+        assertEquals(expectedMessage, userInput.getLastOutput());
     }
 
     @ParameterizedTest
     @DisplayName("ERROR: Line 2 does not exist")
     @CsvFileSource
     void calculate_line2Invalid(List<String> inputs) {
+        runPartialTest(inputs);
+        String expectedMessage =
+                "Invalid line: a line cannot be defined by two segments, when at least one of the segments is zero; Consider entering non-zero values.\n" +
+                "Enter the line arguments again, please!\n";
+        assertEquals(expectedMessage, userInput.getLastOutput());
     }
 
     @ParameterizedTest
     @DisplayName("ERROR: Line 3 matches Line 2")
     @CsvFileSource
     void calculate_line3MatchesLine2(List<String> inputs) {
+        String expectedMessage =
+                "LINE 3 cannot match LINE 2.\n" +
+                        "Enter the line arguments again, please!\n";
+        assertEquals(expectedMessage, userInput.getLastOutput());
+        runPartialTest(inputs);
     }
 
     private List<Point> getExpectedPoints(List<String> inputs, int numberOfPoints) {
@@ -127,5 +166,17 @@ class IntersectionCalculatorTest {
             result.add(p);
         }
         return result;
+    }
+
+    private void runPartialTest(List<String> inputs) {
+        userInput.supply(inputs);
+        try {
+            intersectionCalculator.calculate();
+        } catch (OutOfInputsException ignored) {
+            /*
+             * Exception is thrown to avoid extra calculations by IntersectionCalculator
+             * Used to quickly terminate the session and access userInput's state
+             */
+        }
     }
 }

@@ -15,7 +15,6 @@ public class LinesApp {
                 break;
             }
         }
-        consoleUserInput.println("Exiting...");
     }
 
     private static void printHelp(UserIO userIO) {

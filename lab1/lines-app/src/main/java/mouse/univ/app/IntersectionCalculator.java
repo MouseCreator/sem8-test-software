@@ -14,6 +14,23 @@ public class IntersectionCalculator {
         this.userIO = userIO;
     }
     public String calculate() {
+        boolean restarted;
+        String result = null;
+        do {
+            try {
+                result = calculateOrRestart();
+                restarted = false;
+            } catch (RestartException r) {
+                restarted = true;
+            } catch (Exception e) {
+                userIO.println("ERROR: " + e.getMessage());
+                restarted = true;
+            }
+        } while (restarted);
+        return result;
+    }
+
+    private String calculateOrRestart() {
         List<GenericLine> arguments;
         try {
             arguments = defineArguments();
@@ -25,14 +42,14 @@ public class IntersectionCalculator {
         return result;
     }
 
-    private List<GenericLine> defineArguments() throws TerminatedException {
+    private List<GenericLine> defineArguments() {
         GenericLine line1 = null;
         GenericLine line2 = null;
         GenericLine line3 = null;
         userIO.println("Define LINE 1 by two points (X1; Y1), (X2; Y2)");
         while (line1 == null) {
             try {
-                LineByPointArgs line1Args = lineByTwoPoints();
+                LineByPointArgs line1Args = getLine1Arguments();
                 line1 = line1Args.toLine();
             } catch (InvalidLineException e) {
                 onInvalidLineEntered(e.getMessage());
@@ -42,7 +59,7 @@ public class IntersectionCalculator {
         LineBySegmentsArgs line2Args = null;
         while (line2 == null) {
             try {
-                line2Args = lineByTwoSegments();
+                line2Args = getLine2Arguments();
                 line2 = line2Args.toLine();
             } catch (InvalidLineException e) {
                 onInvalidLineEntered(e.getMessage());
@@ -51,9 +68,9 @@ public class IntersectionCalculator {
         userIO.println("Define LINE 3 by two segments. A - intersection with x axis, B - intersection with y axis.\nThis line cannot match LINE 2.");
         while (line3 == null) {
             try {
-                LineBySegmentsArgs line3Args = lineByTwoSegments();
+                LineBySegmentsArgs line3Args = getLine3Arguments();
                 if (line3Args.equals(line2Args)) {
-                    onInvalidLineEntered("LINE 3 cannot match LINE 2!");
+                    onInvalidLineEntered("LINE 3 cannot match LINE 2.");
                     continue;
                 }
                 line3 = line3Args.toLine();
@@ -65,25 +82,30 @@ public class IntersectionCalculator {
     }
 
     private record LineByPointArgs(int x1, int y1, int x2, int y2) {
-        GenericLine toLine() {
+        GenericLine toLine() throws InvalidLineException {
             return GenericLine.fromTwoPoints(new Point(x1, y1), new Point(x2, y2));
         }
     }
     private record LineBySegmentsArgs(int a, int b) {
-        GenericLine toLine() {
+        GenericLine toLine() throws InvalidLineException {
             return GenericLine.fromTwoSegments(a, b);
         }
     }
-    private LineByPointArgs lineByTwoPoints() throws TerminatedException {
+    private LineByPointArgs getLine1Arguments() {
         int x1 = provideRangedIntOrTerminate("X1");
         int y1 = provideRangedIntOrTerminate("Y1");
         int x2 = provideRangedIntOrTerminate("X2");
         int y2 = provideRangedIntOrTerminate("Y2");
         return new LineByPointArgs(x1, y1, x2, y2);
     }
-    private LineBySegmentsArgs lineByTwoSegments() throws TerminatedException {
-        int a = provideRangedIntOrTerminate("A");
-        int b = provideRangedIntOrTerminate("B");
+    private LineBySegmentsArgs getLine2Arguments() {
+        int a = provideRangedIntOrTerminate("A1");
+        int b = provideRangedIntOrTerminate("B1");
+        return new LineBySegmentsArgs(a, b);
+    }
+    private LineBySegmentsArgs getLine3Arguments() {
+        int a = provideRangedIntOrTerminate("A2");
+        int b = provideRangedIntOrTerminate("B2");
         return new LineBySegmentsArgs(a, b);
     }
     private void onInvalidLineEntered(String message) {
@@ -91,15 +113,20 @@ public class IntersectionCalculator {
         userIO.println("Enter the line arguments again, please!");
     }
 
-    private int provideRangedIntOrTerminate(String prompt) throws TerminatedException {
+    private int provideRangedIntOrTerminate(String prompt) {
         while (true) {
             String string = userIO.getString(prompt);
             if (string.isEmpty()) {
-                userIO.println("No input; Please, enter a valid ");
+                userIO.println("No input; Please, enter a valid decimal integer number.");
                 continue;
             }
             if (string.trim().equalsIgnoreCase("e")) {
+                userIO.println("Exiting...");
                 throw new TerminatedException();
+            }
+            if (string.trim().equalsIgnoreCase("r")) {
+                userIO.println("Restarting...");
+                throw new RestartException();
             }
             try {
                 int result = Integer.parseInt(string);

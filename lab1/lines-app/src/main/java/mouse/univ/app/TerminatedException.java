@@ -1,4 +1,6 @@
 package mouse.univ.app;
 
-public class TerminatedException extends Exception{
+public class TerminatedException extends RuntimeException {
+    public TerminatedException() {
+    }
 }

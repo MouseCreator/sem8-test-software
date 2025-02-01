@@ -46,4 +46,8 @@ public class Messages {
     public static String terminated() {
         return "Terminated";
     }
+
+    public static String restarted() {
+        return "Restarted";
+    }
 }
