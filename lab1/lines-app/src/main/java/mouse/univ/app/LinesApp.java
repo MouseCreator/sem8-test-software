@@ -10,9 +10,13 @@ public class LinesApp {
         IntersectionCalculator intersectionCalculator = new IntersectionCalculator(consoleUserInput);
         printHelp(consoleUserInput);
         while (true) {
-            String result = intersectionCalculator.calculate();
-            if (result.equals(Messages.terminated())) {
-                break;
+            try {
+                String result = intersectionCalculator.calculate();
+                if (result.equals(Messages.terminated())) {
+                    break;
+                }
+            } catch (Exception e) {
+                consoleUserInput.println("ERROR: " + e.getMessage());
             }
         }
     }

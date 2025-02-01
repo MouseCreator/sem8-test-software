@@ -5,6 +5,7 @@ import mouse.univ.geometry.Point;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,8 +25,8 @@ class IntersectionCalculatorTest {
 
     @ParameterizedTest
     @DisplayName("OK: Matching lines")
-    @CsvFileSource
-    void calculate_sameLine(List<String> inputs) {
+    @CsvFileSource(resources = "01_matching_lines.csv", delimiter = ';')
+    void calculate_sameLine(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
         assertEquals(Messages.sameLine(), result);
@@ -44,32 +45,30 @@ class IntersectionCalculatorTest {
     @DisplayName("OK: One intersection")
     @CsvFileSource
     void calculate_oneIntersection(List<String> inputs) {
-        List<Point> expected = getExpectedPoints(inputs, 1);
+        String expected = inputs.removeFirst();
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
-        assertSamePoints(expected, result);
-    }
-    private static void assertSamePoints(List<Point> expected, String result) {
+        assertEquals(expected, result);
     }
 
     @ParameterizedTest
     @DisplayName("OK: Two intersections")
     @CsvFileSource
     void calculate_twoIntersections(List<String> inputs) {
-        List<Point> expected = getExpectedPoints(inputs, 2);
+        String expected = inputs.removeFirst();
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
-        assertSamePoints(expected, result);
+        assertEquals(expected, result);
     }
 
     @ParameterizedTest
     @DisplayName("OK: Three intersections")
     @CsvFileSource
     void calculate_threeIntersections(List<String> inputs) {
-        List<Point> expected = getExpectedPoints(inputs, 3);
+        String expected = inputs.removeFirst();
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
-        assertSamePoints(expected, result);
+        assertEquals(expected, result);
     }
 
     @ParameterizedTest
@@ -90,14 +89,6 @@ class IntersectionCalculatorTest {
         String result = intersectionCalculator.calculate();
         assertEquals(Messages.restarted(), result);
         assertEquals("Restarting...\nDefine LINE 1 by two points (X1; Y1), (X2; Y2)\n", userInput.getLastOutput());
-    }
-
-    @ParameterizedTest
-    @DisplayName("ERROR: Unexpected Error")
-    @CsvFileSource
-    void calculate_exception(List<String> inputs) {
-        runPartialTest(inputs);
-        assertEquals("ERROR: Unexpected Error!\nDefine LINE 1 by two points (X1; Y1), (X2; Y2)\n", userInput.getLastOutput());
     }
 
     @ParameterizedTest

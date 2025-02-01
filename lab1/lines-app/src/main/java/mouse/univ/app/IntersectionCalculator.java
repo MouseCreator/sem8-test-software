@@ -22,9 +22,6 @@ public class IntersectionCalculator {
                 restarted = false;
             } catch (RestartException r) {
                 restarted = true;
-            } catch (Exception e) {
-                userIO.println("ERROR: " + e.getMessage());
-                restarted = true;
             }
         } while (restarted);
         return result;

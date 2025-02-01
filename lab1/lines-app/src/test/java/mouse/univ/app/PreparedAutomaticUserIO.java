@@ -28,9 +28,6 @@ public class PreparedAutomaticUserIO implements AutomaticUserIO {
             throw new OutOfInputsException("No input prepared, when asked for a string with prompt: '" + prompt + "'");
         }
         String input = preparedInputs.removeFirst();
-        if (input.equals("THROW")) {
-            throw new UnexpectedInputException("Unexpected Error!");
-        }
         recordedMessages.add(new RecordedMessage(RecordType.PROMPT, prompt));
         recordedMessages.add(new RecordedMessage(RecordType.INPUT, input));
         return input;
