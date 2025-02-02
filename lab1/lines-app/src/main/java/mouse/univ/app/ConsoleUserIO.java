@@ -27,14 +27,7 @@ public class ConsoleUserIO implements UserIO {
     @Override
     public String getString(String prompt) {
         askForInput(prompt);
-        while (true) {
-            String line = scanner.nextLine();
-            if (line.isEmpty()) {
-                output.println("Empty input; consider entering a non-empty string.");
-                continue;
-            }
-            return line;
-        }
+        return scanner.nextLine();
     }
 
     @Override

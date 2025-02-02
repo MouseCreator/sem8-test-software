@@ -8,26 +8,26 @@ import java.util.List;
 
 public class Messages {
     public static String sameLine() {
-        return "Given lines are the same line";
+        return "Прямі співпадають";
     }
     public static String parallel() {
-        return "Given lines do not intersect";
+        return "Прямі не перетинаються";
     }
     public static String intersections(List<Point> pointList) {
         List<Point> sortedList = softPoints(pointList);
         if (sortedList.isEmpty()) {
-            throw new IllegalArgumentException("Assumed that given lines intersect, but received empty list of intersections.");
+            throw new IllegalArgumentException("Припускається, що прямі перетинаються принаймні в одній точці, але отримано порожній список точок перетину");
         }
         if (sortedList.size() == 1) {
-            return "Lines intersect at one point: " + (sortedList.getFirst());
+            return "Прямі перетинаються в одній точці " + sortedList.getFirst();
         }
         if (sortedList.size() == 2) {
-            return "Lines intersect at two points: " + formatListOfPoints(sortedList);
+            return "Прямі перетинаються в двох точках " + formatListOfPoints(sortedList);
         }
         if (sortedList.size() == 3) {
-            return "Lines intersect at three points: " + formatListOfPoints(sortedList);
+            return "Прямі перетинаються в трьох точках  " + formatListOfPoints(sortedList);
         }
-        return "Lines intersect at " + sortedList.size() + " points " + formatListOfPoints(sortedList);
+        return "Прямі перетинацються в " + sortedList.size() + " точках " + formatListOfPoints(sortedList);
     }
 
     private static List<Point> softPoints(List<Point> pointList) {
@@ -59,10 +59,10 @@ public class Messages {
 
 
     public static String terminated() {
-        return "Terminated";
+        return "Зупинено";
     }
 
     public static String restarted() {
-        return "Restarted";
+        return "Перезапущено";
     }
 }

@@ -23,11 +23,13 @@ public class LinesApp {
 
     private static void printHelp(UserIO userIO) {
         String help = """
-            === INTERSECTION CALCULATOR ===
-            * For each prompt, an integer value is expected. Valid inputs rage: [-122, 122].
-            * If invalid value is entered, you will be asked to reenter the value.
-            * You may enter 'e' instead of an integer to terminate the application.
-            ===============================
+            === КАЛЬКУЛЯТОР ПЕРЕТИНІВ ПРЯМИХ ===
+            * Дана програма обраховує точки перетину трьох заданих прямих;
+            * На кожен запит введіть ціле число з проміжку [-122, 122];
+            * Якщо введено некоректне значення, Вас попросять ввести нове значення замість попереднього;
+            * Ви можете ввести значення 'e', щоб зупинити виконання програмни;
+            * Ви можете ввести значення 'r', щоб почати заново виконання програми.
+            ====================================
             """;
         userIO.println(help);
     }

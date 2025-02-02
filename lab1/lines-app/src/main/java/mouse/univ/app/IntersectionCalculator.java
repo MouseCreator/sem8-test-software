@@ -43,7 +43,7 @@ public class IntersectionCalculator {
         GenericLine line1 = null;
         GenericLine line2 = null;
         GenericLine line3 = null;
-        userIO.println("Define LINE 1 by two points (X1; Y1), (X2; Y2)");
+        userIO.println("Визначіть ПРЯМУ 1 за двома точками (X1; Y1), (X2; Y2)");
         while (line1 == null) {
             try {
                 LineByPointArgs line1Args = getLine1Arguments();
@@ -52,7 +52,7 @@ public class IntersectionCalculator {
                 onInvalidLineEntered(e.getMessage());
             }
         }
-        userIO.println("Define LINE 2 by two segments. A - intersection with x axis, B - intersection with y axis");
+        userIO.println("Визначіть ПРЯМУ 2 за двома відрізкамм. A1 - перетин з віссю OX, B1 - перетин з віссю OY");
         LineBySegmentsArgs line2Args = null;
         while (line2 == null) {
             try {
@@ -62,12 +62,12 @@ public class IntersectionCalculator {
                 onInvalidLineEntered(e.getMessage());
             }
         }
-        userIO.println("Define LINE 3 by two segments. A - intersection with x axis, B - intersection with y axis.\nThis line cannot match LINE 2.");
+        userIO.println("Визначіть ПРЯМУ 3 за двома відрізками. A2 - перетин з віссю OX, B2 - перетин з віссю OY");
         while (line3 == null) {
             try {
                 LineBySegmentsArgs line3Args = getLine3Arguments();
                 if (line3Args.equals(line2Args)) {
-                    onInvalidLineEntered("LINE 3 cannot match LINE 2.");
+                    onInvalidLineEntered("ПРЯМА 3 не може співпадати з ПРЯМОЮ 2.");
                     continue;
                 }
                 line3 = line3Args.toLine();
@@ -107,34 +107,36 @@ public class IntersectionCalculator {
     }
     private void onInvalidLineEntered(String message) {
         userIO.println(message);
-        userIO.println("Enter the line arguments again, please!");
+        userIO.println("Введіть параметри прямої ще раз, будь ласка.");
     }
 
     private int provideRangedIntOrTerminate(String prompt) {
+        String howToFix = String.format(" Введіть ціле десяткове число з проміжу [-%d; %d], будь ласка.", Numbers.BOX_SIZE, Numbers.BOX_SIZE);
         while (true) {
             String string = userIO.getString(prompt);
             if (string.isEmpty()) {
-                userIO.println("No input; Please, enter a valid decimal integer number.");
+                userIO.println("Відсутнє вхідне значення;" + howToFix);
                 continue;
             }
-            if (string.trim().equalsIgnoreCase("e")) {
-                userIO.println("Exiting...");
+            String asCommand = string.trim().toLowerCase();
+            if (asCommand.equals("e") || asCommand.equals("е")) {
+                userIO.println("Зупинення...");
                 throw new TerminatedException();
             }
-            if (string.trim().equalsIgnoreCase("r")) {
-                userIO.println("Restarting...");
+            if (asCommand.equals("r") || asCommand.equals("к")) {
+                userIO.println("Відновлення...");
                 throw new RestartException();
             }
             try {
                 int result = Integer.parseInt(string);
                 if (Numbers.isOutOfRange(result)) {
-                    String err = String.format("Provided integer is out of bounds of the allowed box: [-%d, %d]", Numbers.BOX_SIZE, Numbers.BOX_SIZE);
+                    String err = String.format("Дане вхідне число не входить до проміжку [-%d, %d];", Numbers.BOX_SIZE, Numbers.BOX_SIZE) + howToFix;
                     userIO.println(err);
                 } else {
                     return result;
                 }
             } catch (Exception e) {
-                userIO.println("Invalid input; Please, enter a decimal integer value.");
+                userIO.println("Вхідне значення не є цілим числом;" + howToFix);
             }
         }
     }
@@ -178,7 +180,7 @@ public class IntersectionCalculator {
             }
             return Messages.intersections(List.of(point1, point2, point3));
         } else {
-            throw new IllegalStateException("Cannot define relative position of lines 1 and 2.");
+            throw new IllegalStateException("Неможливо встановити взаємне положення прямих ПРЯМА 1 та ПРЯМА 2.");
         }
     }
     private enum LinesRelativePosition {
@@ -188,10 +190,10 @@ public class IntersectionCalculator {
     private record LineIntersectionResult(LinesRelativePosition relative, Point intersection) {
         public Point intersection() {
             if (relative.equals(LinesRelativePosition.INTERSECT) && intersection == null) {
-                throw new IllegalStateException("Line intersection result mark as INTERSECT, but doesnt have the intersection point");
+                throw new IllegalStateException("Положення прямих позначено як INTERSECT, але не задано точки перетину.");
             }
             if (relative.equals(LinesRelativePosition.PARALLEL) || relative.equals(LinesRelativePosition.SAME_LINE)) {
-                throw new IllegalStateException("Trying to get intersection point for lines that do not intersect");
+                throw new IllegalStateException("Неможливо отримати точку перетину для прямих, що не перетинаються.");
             }
             return intersection;
         }

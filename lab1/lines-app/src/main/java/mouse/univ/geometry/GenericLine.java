@@ -31,14 +31,14 @@ public final class GenericLine {
     }
     public static GenericLine fromGenericEquation(double a, double b, double c) throws InvalidLineException {
         if (Numbers.isZero(a) && Numbers.isZero(b)) {
-            throw new InvalidLineException("Invalid line: both A and B arguments in line equation 'Ax + By + C = 0' are zero; Consider entering non-zero values for A and B.");
+            throw new InvalidLineException("Некоректно задана пряма: аргументи A and B у канонічному рівнянні прямої 'Ax + By + C = 0' дорівнюють нулю; Спробуйте ввести ненулеві значення для A та B.");
         }
         return new GenericLine(a, b, c);
     }
 
     public static GenericLine fromTwoPoints(Point point1, Point point2) throws InvalidLineException {
         if (point1.isCloseTo(point2)) {
-            throw new InvalidLineException("Invalid line: a line cannot be defined by two points, located at the same position; Consider entering different points to construct a line.");
+            throw new InvalidLineException("Некоректно задана пряма: пряма не може бути задана двома співпадаючими точками; Спробуйте ввести дві різні точки, щоб побудувати пряму.");
         }
         double a = point2.y() - point1.y();
         double b = point1.x() - point2.x();
@@ -49,8 +49,14 @@ public final class GenericLine {
 
 
     public static GenericLine fromTwoSegments(double xSegmentLength, double ySegmentLength) throws InvalidLineException {
-        if (Numbers.isZero(xSegmentLength) || Numbers.isZero(ySegmentLength)) {
-            throw new InvalidLineException("Invalid line: a line cannot be defined by two segments, when at least one of the segments is zero; Consider entering non-zero values.");
+        if (Numbers.isZero(xSegmentLength) && Numbers.isZero(ySegmentLength)) {
+            throw new InvalidLineException("Некоректно задана пряма: пряма не може бути задана двома нулевими відрізками; Надайте ненулеві значення параметрам A та B.");
+        }
+        if (Numbers.isZero(xSegmentLength)) {
+            throw new InvalidLineException("Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.");
+        }
+        if (Numbers.isZero(ySegmentLength)) {
+            throw new InvalidLineException("Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.");
         }
         double a = 1.0/xSegmentLength;
         double b = 1.0/ySegmentLength;

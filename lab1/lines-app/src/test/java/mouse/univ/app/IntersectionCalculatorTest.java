@@ -1,7 +1,6 @@
 package mouse.univ.app;
 
 import mouse.univ.common.Messages;
-import mouse.univ.geometry.Point;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -10,11 +9,9 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 class IntersectionCalculatorTest {
-
     private IntersectionCalculator intersectionCalculator;
     private AutomaticUserIO userInput;
     @BeforeEach
@@ -22,7 +19,9 @@ class IntersectionCalculatorTest {
         userInput = new PreparedAutomaticUserIO();
         intersectionCalculator = new IntersectionCalculator(userInput);
     }
-
+    /**
+     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     */
     @ParameterizedTest
     @DisplayName("OK: Matching lines")
     @CsvFileSource(resources = "01_matching_lines.csv", delimiter = ';')
@@ -31,16 +30,20 @@ class IntersectionCalculatorTest {
         String result = intersectionCalculator.calculate();
         assertEquals(Messages.sameLine(), result);
     }
-
+    /**
+     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     */
     @ParameterizedTest
     @DisplayName("OK: Parallel lines")
-    @CsvFileSource
-    void calculate_parallelLines(List<String> inputs) {
+    @CsvFileSource(resources = "01_matching_lines.csv", delimiter = ';')
+    void calculate_parallelLines(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
         assertEquals(Messages.parallel(), result);
     }
-
+    /**
+     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     */
     @ParameterizedTest
     @DisplayName("OK: One intersection")
     @CsvFileSource
@@ -50,7 +53,9 @@ class IntersectionCalculatorTest {
         String result = intersectionCalculator.calculate();
         assertEquals(expected, result);
     }
-
+    /**
+     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     */
     @ParameterizedTest
     @DisplayName("OK: Two intersections")
     @CsvFileSource
@@ -60,7 +65,9 @@ class IntersectionCalculatorTest {
         String result = intersectionCalculator.calculate();
         assertEquals(expected, result);
     }
-
+    /**
+     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     */
     @ParameterizedTest
     @DisplayName("OK: Three intersections")
     @CsvFileSource
@@ -70,7 +77,10 @@ class IntersectionCalculatorTest {
         String result = intersectionCalculator.calculate();
         assertEquals(expected, result);
     }
-
+    /**
+     * @param inputs - Коректні вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується вводом 'e'
+     * Наприклад, [0;0;1;1;e] - зупинення виконання програми під час вводу A1.
+     */
     @ParameterizedTest
     @DisplayName("OK: Terminated")
     @CsvFileSource
@@ -78,9 +88,12 @@ class IntersectionCalculatorTest {
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
         assertEquals(Messages.terminated(), result);
-        assertEquals("Exiting...\n", userInput.getLastOutput());
+        assertEquals("Зупинення...\n", userInput.getLastOutput());
     }
-
+    /**
+     * @param inputs - Коректні вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується вводом 'r'
+     * Наприклад, [0;0;1;1;r] - перезапуск виконання програми під час вводу A1.
+     */
     @ParameterizedTest
     @DisplayName("OK: Restarted")
     @CsvFileSource
@@ -88,75 +101,88 @@ class IntersectionCalculatorTest {
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
         assertEquals(Messages.restarted(), result);
-        assertEquals("Restarting...\nDefine LINE 1 by two points (X1; Y1), (X2; Y2)\n", userInput.getLastOutput());
+        assertEquals("Відновлення...\nВизначіть ПРЯМУ 1 за двома точками (X1; Y1), (X2; Y2)\n", userInput.getLastOutput());
     }
-
+    /**
+     * @param inputs - Вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується вводом '' (порожній рядок)
+     * Наприклад, [0;1;2;] - не надано значення параметру Y2
+     */
     @ParameterizedTest
     @DisplayName("ERROR: Missing input")
     @CsvFileSource
     void calculate_missingInput(List<String> inputs) {
         runPartialTest(inputs);
-        assertEquals("No input; Please, enter a valid decimal integer number.\n", userInput.getLastOutput());
+        assertEquals("Відсутнє вхідне значення; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
-
+    /**
+     * @param inputs - Вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується нечисловим вводом
+     * Наприклад, [0;1;2;3;4;A] - замість параметру B1 введено значення 'A'
+     */
     @ParameterizedTest
     @DisplayName("ERROR: Input is not a number")
     @CsvFileSource
     void calculate_invalidInput(List<String> inputs) {
         runPartialTest(inputs);
-        assertEquals("No input; Please, enter a valid decimal integer number.\n", userInput.getLastOutput());
+        assertEquals("Вхідне значення не є цілим числом; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
-
+    /**
+     * @param inputs - Вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується числом поза дозволеним проміжком
+     * Наприклад, [0;1;2;3;4;1000] - замість параметру B1 введено значення 1000 > 122
+     */
     @ParameterizedTest
     @DisplayName("ERROR: Input is out of bounds")
     @CsvFileSource
     void calculate_outOfBounds(List<String> inputs) {
         runPartialTest(inputs);
-        assertEquals("Provided integer is out of bounds of the allowed box: [-122, 122]\n", userInput.getLastOutput());
+        assertEquals("Дане вхідне число не входить до проміжку [-122, 122]; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
-
+    /**
+     * @param inputs - Вхідні дані - список вхідних параметрів [X1;Y1;X2;Y2], де X1=X2 та Y1=Y2;
+     * Наприклад, [0;1;0;1] - утворюють дві точки зі значення (0, 1). Така пара точок не задає прямої.
+     */
     @ParameterizedTest
     @DisplayName("ERROR: Line 1 does not exist")
     @CsvFileSource
     void calculate_line1Invalid(List<String> inputs) {
         runPartialTest(inputs);
         String expectedMessage =
-                "Invalid line: a line cannot be defined by two points, located at the same position; Consider entering different points to construct a line.\n" +
-                "Enter the line arguments again, please!\n";
+                "Некоректно задана пряма: пряма не може бути задана двома співпадаючими точками; Спробуйте ввести дві різні точки, щоб побудувати пряму.\n" +
+                "Введіть параметри прямої ще раз, будь ласка.\n";
         assertEquals(expectedMessage, userInput.getLastOutput());
     }
-
+    /**
+     * @param inputs - Вхідні дані - список вхідних параметрів [X1;Y1;X2;Y2;A1;B1], де A1=0 та/або B1=0;
+     * Наприклад, [0;1;2;3;0;0] - утворюють нульові відрізки на осях OX та OY. Така пара відрізків не задає прямої
+     */
     @ParameterizedTest
     @DisplayName("ERROR: Line 2 does not exist")
     @CsvFileSource
     void calculate_line2Invalid(List<String> inputs) {
+        String caseIdentifier = inputs.removeFirst();
         runPartialTest(inputs);
-        String expectedMessage =
-                "Invalid line: a line cannot be defined by two segments, when at least one of the segments is zero; Consider entering non-zero values.\n" +
-                "Enter the line arguments again, please!\n";
+        String expectedMessage;
+        switch (caseIdentifier) {
+            case "ab" -> expectedMessage = "Некоректно задана пряма: пряма не може бути задана двома нулевими відрізками; Надайте ненулеві значення параметрам A та B.\n";
+            case "a" -> expectedMessage = "Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.\n";
+            case "b" -> expectedMessage = "Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.\n";
+            default -> throw new IllegalArgumentException("");
+        };
+        expectedMessage += "Введіть параметри прямої ще раз, будь ласка.\n";
         assertEquals(expectedMessage, userInput.getLastOutput());
     }
-
+    /**
+     * @param inputs - Вхідні дані - список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], де A1=A2 та B1=B2;
+     * Наприклад, [0;1;2;3;1;2;1;2] - утворюють дві однакові прямі, що суперечить вимозі про різницю пар (A1; B1) та (A2; B2)
+     */
     @ParameterizedTest
     @DisplayName("ERROR: Line 3 matches Line 2")
     @CsvFileSource
     void calculate_line3MatchesLine2(List<String> inputs) {
         String expectedMessage =
-                "LINE 3 cannot match LINE 2.\n" +
-                        "Enter the line arguments again, please!\n";
+                "ПРЯМА 3 не може співпадати з ПРЯМОЮ 2.\n" +
+                "Введіть параметри прямої ще раз, будь ласка.\n";
         assertEquals(expectedMessage, userInput.getLastOutput());
         runPartialTest(inputs);
-    }
-
-    private List<Point> getExpectedPoints(List<String> inputs, int numberOfPoints) {
-        List<Point> result = new ArrayList<>();
-        for (int i = 0; i < numberOfPoints; i++) {
-            String x = inputs.removeFirst();
-            String y = inputs.removeFirst();
-            Point p = new Point(Integer.parseInt(x), Integer.parseInt(y));
-            result.add(p);
-        }
-        return result;
     }
 
     private void runPartialTest(List<String> inputs) {
@@ -165,8 +191,8 @@ class IntersectionCalculatorTest {
             intersectionCalculator.calculate();
         } catch (OutOfInputsException ignored) {
             /*
-             * Exception is thrown to avoid extra calculations by IntersectionCalculator
-             * Used to quickly terminate the session and access userInput's state
+             * Дане виключення викидується для того, щоб зупинити виконання програми і уникнути обрахунків у IntersectionCalculator
+             * Стан userInput зберігається і доступний до подальшого опрацювання у тестах
              */
         }
     }

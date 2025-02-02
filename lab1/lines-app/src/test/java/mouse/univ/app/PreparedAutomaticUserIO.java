@@ -25,7 +25,7 @@ public class PreparedAutomaticUserIO implements AutomaticUserIO {
     @Override
     public String getString(String prompt) {
         if (preparedInputs.isEmpty()) {
-            throw new OutOfInputsException("No input prepared, when asked for a string with prompt: '" + prompt + "'");
+            throw new OutOfInputsException("Не заданого наступного значення. Неможливо відповісти на запит: '" + prompt + "'");
         }
         String input = preparedInputs.removeFirst();
         recordedMessages.add(new RecordedMessage(RecordType.PROMPT, prompt));
