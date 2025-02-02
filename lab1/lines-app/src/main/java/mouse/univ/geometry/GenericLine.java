@@ -58,9 +58,9 @@ public final class GenericLine {
         if (Numbers.isZero(ySegmentLength)) {
             throw new InvalidLineException("Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.");
         }
-        double a = 1.0/xSegmentLength;
-        double b = 1.0/ySegmentLength;
-        double c = -1.0;
+        double a = ySegmentLength;
+        double b = xSegmentLength;
+        double c = -ySegmentLength * xSegmentLength;
         return new GenericLine(a, b, c);
     }
 }

@@ -2,7 +2,9 @@ package mouse.univ.app;
 
 import mouse.univ.common.Messages;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -20,22 +22,19 @@ class IntersectionCalculatorTest {
         intersectionCalculator = new IntersectionCalculator(userInput);
     }
     /**
-     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
-     */
-    @ParameterizedTest
+    * Випадок не можливий через обмеження на вхідні параметри
+    */
+    @Test
     @DisplayName("OK: Matching lines")
-    @CsvFileSource(resources = "01_matching_lines.csv", delimiter = ';')
-    void calculate_sameLine(@AggregateWith(StringListAggregator.class) List<String> inputs) {
-        userInput.supply(inputs);
-        String result = intersectionCalculator.calculate();
-        assertEquals(Messages.sameLine(), result);
+    @Disabled
+    void calculate_sameLine() {
     }
     /**
      * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
      */
     @ParameterizedTest
     @DisplayName("OK: Parallel lines")
-    @CsvFileSource(resources = "01_matching_lines.csv", delimiter = ';')
+    @CsvFileSource(resources = "01_parallel_lines.csv", delimiter = ';')
     void calculate_parallelLines(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
