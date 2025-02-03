@@ -2,9 +2,7 @@ package mouse.univ.app;
 
 import mouse.univ.common.Messages;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.aggregator.AggregateWith;
 import org.junit.jupiter.params.provider.CsvFileSource;
@@ -119,7 +117,8 @@ class IntersectionCalculatorTest {
     @CsvFileSource(resources = "08_input_not_number.csv", delimiter = ';')
     void calculate_invalidInput(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
-        assertEquals("Вхідне значення не є цілим числом; Введіть ціле десяткове число з проміжку [-122; 122], будь ласка.\n", userInput.getLastOutput());
+        String expected = "Вхідне значення не є цілим числом; Введіть ціле десяткове число з проміжку [-122; 122], будь ласка.\n";
+        assertEquals(expected, userInput.getLastOutput());
     }
     /**
      * @param inputs - incomplete list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], which ends with a number out of bounds of the given box
@@ -130,7 +129,8 @@ class IntersectionCalculatorTest {
     @CsvFileSource(resources = "09_input_out_of_bounds.csv", delimiter = ';')
     void calculate_outOfBounds(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
-        assertEquals("Дане вхідне число не входить до проміжку [-122, 122]; Введіть ціле десяткове число з проміжку [-122; 122], будь ласка.\n", userInput.getLastOutput());
+        String expected = "Дане вхідне число не входить до проміжку [-122, 122]; Введіть ціле десяткове число з проміжку [-122; 122], будь ласка.\n";
+        assertEquals(expected, userInput.getLastOutput());
     }
     /**
      * @param inputs - list of input parameters [X1;Y1;X2;Y2], where X1=X2 and Y1=Y2;
