@@ -145,9 +145,7 @@ public class IntersectionCalculator {
         LineIntersectionResult lines1_2Pos = checkLinesIntersect(line1, line2);
         LineIntersectionResult lines1_3Pos = checkLinesIntersect(line1, line3);
         if (lines1_2Pos.isSameLine()) {
-            if (lines1_3Pos.isSameLine()) {
-                return Messages.sameLine();
-            } else if (lines1_3Pos.isParallelLines()) {
+            if (lines1_3Pos.isParallelLines()) {
                 return Messages.parallel();
             } else {
                 return Messages.intersections(List.of(lines1_3Pos.intersection()));
@@ -157,13 +155,13 @@ public class IntersectionCalculator {
                 return Messages.parallel();
             }
             LineIntersectionResult lines2_3Pos = checkLinesIntersect(line2, line3);
-            if (lines2_3Pos.isParallelLines() || lines2_3Pos.isSameLine()) {
+            if (lines2_3Pos.isParallelLines()) {
                 return Messages.parallel();
             }
             return Messages.intersections(List.of(lines1_3Pos.intersection(), lines2_3Pos.intersection()));
         } else if (lines1_2Pos.isIntersectingLines()) {
             LineIntersectionResult lines2_3Pos = checkLinesIntersect(line2, line3);
-            if (lines1_3Pos.isSameLine() || lines2_3Pos.isSameLine()) {
+            if (lines1_3Pos.isSameLine()) {
                 return Messages.intersections(List.of(lines1_2Pos.intersection()));
             }
             if (lines1_3Pos.isParallelLines()) {

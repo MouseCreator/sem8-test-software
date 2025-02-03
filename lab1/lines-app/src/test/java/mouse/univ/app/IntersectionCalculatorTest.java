@@ -11,7 +11,9 @@ import org.junit.jupiter.params.provider.CsvFileSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.util.List;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class IntersectionCalculatorTest {
     private IntersectionCalculator intersectionCalculator;
@@ -22,15 +24,7 @@ class IntersectionCalculatorTest {
         intersectionCalculator = new IntersectionCalculator(userInput);
     }
     /**
-    * Випадок не можливий через обмеження на вхідні параметри
-    */
-    @Test
-    @DisplayName("OK: Matching lines")
-    @Disabled
-    void calculate_sameLine() {
-    }
-    /**
-     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     * @param inputs - list of input parameters: [X1;Y1;X2;Y2;A1;B1;A2;B2]
      */
     @ParameterizedTest
     @DisplayName("OK: Parallel lines")
@@ -38,111 +32,111 @@ class IntersectionCalculatorTest {
     void calculate_parallelLines(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
-        assertEquals(Messages.parallel(), result);
+        assertEquals("Прямі не перетинаються", result);
     }
     /**
-     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     ** @param inputs - list of input parameters [S;X1;Y1;X2;Y2;A1;B1;A2;B2], where S - example of a correct result message
+     *
      */
     @ParameterizedTest
     @DisplayName("OK: One intersection")
-    @CsvFileSource
-    void calculate_oneIntersection(List<String> inputs) {
+    @CsvFileSource(resources = "02_one_intersection.csv", delimiter = ';')
+    void calculate_oneIntersection(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         String expected = inputs.removeFirst();
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
-        assertEquals(expected, result);
+        assertIntersectionMessagesEqual(expected, result);
     }
     /**
-     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     * @param inputs - list of input parameters [S;X1;Y1;X2;Y2;A1;B1;A2;B2], where S - example of a correct result message
      */
     @ParameterizedTest
     @DisplayName("OK: Two intersections")
-    @CsvFileSource
-    void calculate_twoIntersections(List<String> inputs) {
+    @CsvFileSource(resources = "03_two_intersections.csv", delimiter = ';')
+    void calculate_twoIntersections(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         String expected = inputs.removeFirst();
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
-        assertEquals(expected, result);
+        assertIntersectionMessagesEqual(expected, result);
     }
     /**
-     * @param inputs - Коректні вхідні дані: [X1;Y1;X2;Y2;A1;B1;A2;B2]
+     * @param inputs - list of input parameters [S;X1;Y1;X2;Y2;A1;B1;A2;B2], where S - example of a correct result message
      */
     @ParameterizedTest
     @DisplayName("OK: Three intersections")
-    @CsvFileSource
-    void calculate_threeIntersections(List<String> inputs) {
+    @CsvFileSource(resources = "04_three_intersections.csv", delimiter = ';')
+    void calculate_threeIntersections(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         String expected = inputs.removeFirst();
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
-        assertEquals(expected, result);
+        assertIntersectionMessagesEqual(expected, result);
     }
     /**
-     * @param inputs - Коректні вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується вводом 'e'
-     * Наприклад, [0;0;1;1;e] - зупинення виконання програми під час вводу A1.
+     * @param inputs - incomplete list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], which ends with 'e' entry
+     * For example, [0;0;1;1;e] - terminates the application, when asked for A1.
      */
     @ParameterizedTest
     @DisplayName("OK: Terminated")
-    @CsvFileSource
-    void calculate_terminated(List<String> inputs) {
+    @CsvFileSource(resources = "05_terminated.csv", delimiter = ';')
+    void calculate_terminated(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         userInput.supply(inputs);
         String result = intersectionCalculator.calculate();
         assertEquals(Messages.terminated(), result);
         assertEquals("Зупинення...\n", userInput.getLastOutput());
     }
     /**
-     * @param inputs - Коректні вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується вводом 'r'
-     * Наприклад, [0;0;1;1;r] - перезапуск виконання програми під час вводу A1.
+     * @param inputs - incomplete list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], which ends with 'r' entry
+     * For example, [0;0;1;1;r] - restarts the application, when asked for A1.
      */
     @ParameterizedTest
     @DisplayName("OK: Restarted")
-    @CsvFileSource
-    void calculate_restarted(List<String> inputs) {
-        userInput.supply(inputs);
-        String result = intersectionCalculator.calculate();
-        assertEquals(Messages.restarted(), result);
-        assertEquals("Відновлення...\nВизначіть ПРЯМУ 1 за двома точками (X1; Y1), (X2; Y2)\n", userInput.getLastOutput());
+    @CsvFileSource(resources = "06_restarted.csv", delimiter = ';')
+    void calculate_restarted(@AggregateWith(StringListAggregator.class) List<String> inputs) {
+        runPartialTest(inputs);
+        String result = userInput.getLastOutput();
+        assertEquals("Відновлення...\nВизначіть ПРЯМУ 1 за двома точками (X1; Y1), (X2; Y2)\n", result);
     }
     /**
-     * @param inputs - Вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується вводом '' (порожній рядок)
-     * Наприклад, [0;1;2;] - не надано значення параметру Y2
+     * @param inputs - incomplete list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], which ends with '' (empty string)
+     * For example, [0;1;2;] has empty value for parameter Y2
      */
     @ParameterizedTest
     @DisplayName("ERROR: Missing input")
-    @CsvFileSource
-    void calculate_missingInput(List<String> inputs) {
+    @CsvFileSource(resources = "07_missing_input.csv", delimiter = ';')
+    void calculate_missingInput(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
         assertEquals("Відсутнє вхідне значення; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
     /**
-     * @param inputs - Вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується нечисловим вводом
-     * Наприклад, [0;1;2;3;4;A] - замість параметру B1 введено значення 'A'
+     * @param inputs - incomplete list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], which ends with a non-integer entry
+     * For example, [0;1;2;3;4;A] ends with B1='A', which is not a number
      */
     @ParameterizedTest
     @DisplayName("ERROR: Input is not a number")
-    @CsvFileSource
-    void calculate_invalidInput(List<String> inputs) {
+    @CsvFileSource(resources = "08_input_not_number.csv", delimiter = ';')
+    void calculate_invalidInput(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
         assertEquals("Вхідне значення не є цілим числом; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
     /**
-     * @param inputs - Вхідні дані - неповний список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], що закінчується числом поза дозволеним проміжком
-     * Наприклад, [0;1;2;3;4;1000] - замість параметру B1 введено значення 1000 > 122
+     * @param inputs - incomplete list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], which ends with a number out of bounds of the given box
+     * For example, [0;1;2;3;4;1000] ends with B1 = 1000 > 122 (the upper bound)
      */
     @ParameterizedTest
     @DisplayName("ERROR: Input is out of bounds")
-    @CsvFileSource
-    void calculate_outOfBounds(List<String> inputs) {
+    @CsvFileSource(resources = "09_input_out_of_bounds.csv", delimiter = ';')
+    void calculate_outOfBounds(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
         assertEquals("Дане вхідне число не входить до проміжку [-122, 122]; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
     /**
-     * @param inputs - Вхідні дані - список вхідних параметрів [X1;Y1;X2;Y2], де X1=X2 та Y1=Y2;
-     * Наприклад, [0;1;0;1] - утворюють дві точки зі значення (0, 1). Така пара точок не задає прямої.
+     * @param inputs - list of input parameters [X1;Y1;X2;Y2], where X1=X2 and Y1=Y2;
+     * For example, [0;1;0;1] defines two points at the same coordinates of (0, 1). The pair does not define a line.
      */
     @ParameterizedTest
     @DisplayName("ERROR: Line 1 does not exist")
-    @CsvFileSource
-    void calculate_line1Invalid(List<String> inputs) {
+    @CsvFileSource(resources = "10_line1_err.csv", delimiter = ';')
+    void calculate_line1Invalid(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
         String expectedMessage =
                 "Некоректно задана пряма: пряма не може бути задана двома співпадаючими точками; Спробуйте ввести дві різні точки, щоб побудувати пряму.\n" +
@@ -150,33 +144,52 @@ class IntersectionCalculatorTest {
         assertEquals(expectedMessage, userInput.getLastOutput());
     }
     /**
-     * @param inputs - Вхідні дані - список вхідних параметрів [X1;Y1;X2;Y2;A1;B1], де A1=0 та/або B1=0;
-     * Наприклад, [0;1;2;3;0;0] - утворюють нульові відрізки на осях OX та OY. Така пара відрізків не задає прямої
+     * @param inputs - list of input parameters [X1;Y1;X2;Y2;A1;B1], where A1=0 and B1=0;
+     * For example, [0;1;2;3;0;0] - defines zero segments, which is just a point at the origin. The pair does not define a line
      */
     @ParameterizedTest
-    @DisplayName("ERROR: Line 2 does not exist")
-    @CsvFileSource
-    void calculate_line2Invalid(List<String> inputs) {
-        String caseIdentifier = inputs.removeFirst();
+    @DisplayName("ERROR: Line 2 does not exist: A = 0 and B = 0")
+    @CsvFileSource(resources = "11_line2_err_ab.csv", delimiter = ';')
+    void calculate_line2Invalid_bothZero(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
-        String expectedMessage;
-        switch (caseIdentifier) {
-            case "ab" -> expectedMessage = "Некоректно задана пряма: пряма не може бути задана двома нулевими відрізками; Надайте ненулеві значення параметрам A та B.\n";
-            case "a" -> expectedMessage = "Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.\n";
-            case "b" -> expectedMessage = "Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.\n";
-            default -> throw new IllegalArgumentException("");
-        };
+        String expectedMessage = "Некоректно задана пряма: пряма не може бути задана двома нулевими відрізками; Надайте ненулеві значення параметрам A та B.\n";
         expectedMessage += "Введіть параметри прямої ще раз, будь ласка.\n";
         assertEquals(expectedMessage, userInput.getLastOutput());
     }
     /**
-     * @param inputs - Вхідні дані - список вхідних параметрів [X1;Y1;X2;Y2;A1;B1;A2;B2], де A1=A2 та B1=B2;
-     * Наприклад, [0;1;2;3;1;2;1;2] - утворюють дві однакові прямі, що суперечить вимозі про різницю пар (A1; B1) та (A2; B2)
+     * @param inputs - list of input parameters [X1;Y1;X2;Y2;A1;B1], where A1 = 0 and B1 != 0;
+     * For example, [0;1;2;3;0;2] - violates the requirement A1 = 0, so the corresponding message must be printed
+     */
+    @ParameterizedTest
+    @DisplayName("ERROR: Line 2 does not exist: A = 0")
+    @CsvFileSource(resources = "12_line2_err_a.csv", delimiter = ';')
+    void calculate_line2Invalid_AZero(@AggregateWith(StringListAggregator.class) List<String> inputs) {
+        runPartialTest(inputs);
+        String expectedMessage = "Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.\n";
+        expectedMessage += "Введіть параметри прямої ще раз, будь ласка.\n";
+        assertEquals(expectedMessage, userInput.getLastOutput());
+    }
+    /**
+     * @param inputs - list of input parameters [X1;Y1;X2;Y2;A1;B1], where A1 != 0 and B1 = 0;
+     * For example, [0;1;2;3;2;0] - violates the requirement B1 = 0, so the corresponding message must be printed
+     */
+    @ParameterizedTest
+    @DisplayName("ERROR: Line 2 does not exist: B = 0")
+    @CsvFileSource(resources = "13_line2_err_b.csv", delimiter = ';')
+    void calculate_line2Invalid_BZero(@AggregateWith(StringListAggregator.class) List<String> inputs) {
+        runPartialTest(inputs);
+        String expectedMessage = "Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.\n";
+        expectedMessage += "Введіть параметри прямої ще раз, будь ласка.\n";
+        assertEquals(expectedMessage, userInput.getLastOutput());
+    }
+    /**
+     * @param inputs - list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], where A1=A2 and B1=B2;
+     * For example, [0;1;2;3;1;2;1;2] creates two matching lines, violating the condition that (A1; B1) does not equal to (A2; B2)
      */
     @ParameterizedTest
     @DisplayName("ERROR: Line 3 matches Line 2")
-    @CsvFileSource
-    void calculate_line3MatchesLine2(List<String> inputs) {
+    @CsvFileSource(resources = "14_line2_3_match.csv", delimiter = ';')
+    void calculate_line3MatchesLine2(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         String expectedMessage =
                 "ПРЯМА 3 не може співпадати з ПРЯМОЮ 2.\n" +
                 "Введіть параметри прямої ще раз, будь ласка.\n";
@@ -184,15 +197,79 @@ class IntersectionCalculatorTest {
         runPartialTest(inputs);
     }
 
-    private void runPartialTest(List<String> inputs) {
+    /**
+     * Runs the test; Allows aborting the test due to insufficient input values
+     * @param inputs - input values for the test
+     */
+    private void runPartialTest(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         userInput.supply(inputs);
         try {
             intersectionCalculator.calculate();
         } catch (OutOfInputsException ignored) {
             /*
-             * Дане виключення викидується для того, щоб зупинити виконання програми і уникнути обрахунків у IntersectionCalculator
-             * Стан userInput зберігається і доступний до подальшого опрацювання у тестах
+             * The exception is thrown and caught in order to skip the calculations performed by IntersectionCalculator
+             * This way, the tests can quickly access the state of the userInput
              */
         }
+    }
+
+    /**
+     * Checks if two intersection messages are equals regardless of the order of the points in the message
+     * @param expected - example of the correct message
+     * @param actual - actual message, the result of the program
+     */
+    private static void assertIntersectionMessagesEqual(String expected, String actual) {
+        /*
+        If example message and actual message match - the assertion passes
+         */
+        if (expected.equals(actual)) {
+            return;
+        }
+        String errorMessage = String.format("Message mismatch!\nExpected : %s\nActual   : %s", expected, actual);
+        /*
+        Extract points from both messages and compare them
+        The points must be the same
+         */
+        Set<String> expectedPoints = extractPoints(expected);
+        Set<String> actualPoints = extractPoints(actual);
+        assertEquals(expectedPoints, actualPoints, errorMessage);
+
+        /*
+        Replace points with placeholder and compare messages.
+        Since the sensitive part is already checked and replaced with a placeholder,
+        the test only needs to compare the structure of the messages
+         */
+        String expectedPlaceholder = toPlaceholderMessage(expected, expectedPoints);
+        String actualPlaceholder = toPlaceholderMessage(actual, actualPoints);
+        assertEquals(expectedPlaceholder, actualPlaceholder, errorMessage);
+    }
+
+    /**
+     * Replaces point coordinates with a placeholder ("%%%%%%")
+     * @param message - input message
+     * @param points - substrings to replace with the placeholder
+     * @return string with placeholders
+     */
+    private static String toPlaceholderMessage(String message, Set<String> points) {
+        String result = message;
+        for (String point : points) {
+            result = result.replaceAll("\\(" + point + "\\)", "%%%%%");
+        }
+        return result;
+    }
+
+    /**
+     * Extracts point coordinates from the message
+     * @param message - input message
+     * @return a set of substrings, containing point coordinates
+     */
+    private static Set<String> extractPoints(String message) {
+        Pattern pattern = Pattern.compile("\\(([+-]?\\d+(?:\\.\\d+)?),\\s([+-]?\\d+(?:\\.\\d+)?)\\)");
+        Set<String> matches = new HashSet<>();
+        Matcher matcher = pattern.matcher(message);
+        while (matcher.find()) {
+            matches.add(matcher.group());
+        }
+        return matches;
     }
 }

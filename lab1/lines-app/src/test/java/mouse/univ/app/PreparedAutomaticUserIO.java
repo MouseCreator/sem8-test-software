@@ -62,8 +62,7 @@ public class PreparedAutomaticUserIO implements AutomaticUserIO {
         int firstOutputIndex = lastInputIndex + 1;
         StringBuilder builder = new StringBuilder();
         for (int i = firstOutputIndex; i < recordedMessages.size(); i++) {
-            int recordIndex = firstOutputIndex + i;
-            RecordedMessage outputMessage = recordedMessages.get(recordIndex);
+            RecordedMessage outputMessage = recordedMessages.get(i);
             builder.append(outputMessage.value());
         }
         return builder.toString();
