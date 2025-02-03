@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Queue-based implementation of Automatic User IO - each supplied input is consumed once and removed from the queue.d
+ * Maintains a list of records to replicate the history of input/output, which may be used in debug purposes.
+ */
 public class PreparedAutomaticUserIO implements AutomaticUserIO {
     private enum RecordType {
         PROMPT, OUTPUT, INPUT
