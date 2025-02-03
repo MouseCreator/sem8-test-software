@@ -12,7 +12,10 @@ public final class GenericLine {
     private final double b;
     private final double c;
 
-    private GenericLine(double a, double b, double c) {
+    private GenericLine(double a, double b, double c) throws InvalidLineException {
+        if (Numbers.isZero(a) && Numbers.isZero(b)) {
+            throw new InvalidLineException("Некоректно задана пряма: аргументи A and B у загальному рівнянні прямої 'Ax + By + C = 0' дорівнюють нулю; Спробуйте ввести ненулеві значення для A та B.");
+        }
         this.a = a;
         this.b = b;
         this.c = c;
@@ -28,12 +31,6 @@ public final class GenericLine {
 
     public double c() {
         return c;
-    }
-    public static GenericLine fromGenericEquation(double a, double b, double c) throws InvalidLineException {
-        if (Numbers.isZero(a) && Numbers.isZero(b)) {
-            throw new InvalidLineException("Некоректно задана пряма: аргументи A and B у канонічному рівнянні прямої 'Ax + By + C = 0' дорівнюють нулю; Спробуйте ввести ненулеві значення для A та B.");
-        }
-        return new GenericLine(a, b, c);
     }
 
     public static GenericLine fromTwoPoints(Point point1, Point point2) throws InvalidLineException {

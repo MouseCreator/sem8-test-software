@@ -8,11 +8,25 @@ import mouse.univ.geometry.Point;
 
 import java.util.List;
 
+/**
+ * Calculates intersections of three given lines
+ * Handles reading input parameters, calculation of the intersection points and printing the results
+ */
 public class IntersectionCalculator {
     private final UserIO userIO;
+
+    /**
+     * Creates new instance of IntersectionCalculator with given communication channel
+     * @param userIO - communication channel
+     */
     public IntersectionCalculator(UserIO userIO) {
         this.userIO = userIO;
     }
+
+    /**
+     * Starts the parameter retrieving and calculation process
+     * @return result of the last calculation
+     */
     public String calculate() {
         boolean restarted;
         String result = null;
@@ -39,6 +53,10 @@ public class IntersectionCalculator {
         return result;
     }
 
+    /**
+     *
+     * @return list of three generic lines, defined by the provided arguments from User IO
+     */
     private List<GenericLine> defineArguments() {
         GenericLine line1 = null;
         GenericLine line2 = null;
@@ -141,6 +159,13 @@ public class IntersectionCalculator {
         }
     }
 
+    /**
+     * Calculates intersections
+     * @param line1 - LINE 1, defined by two points
+     * @param line2 - LINE 2, defined by two segments
+     * @param line3 = LINE 3, defined by two segments
+     * @return line intersection message
+     */
     private String getIntersections(GenericLine line1, GenericLine line2, GenericLine line3) {
         LineIntersectionResult lines1_2Pos = checkLinesIntersect(line1, line2);
         LineIntersectionResult lines1_3Pos = checkLinesIntersect(line1, line3);

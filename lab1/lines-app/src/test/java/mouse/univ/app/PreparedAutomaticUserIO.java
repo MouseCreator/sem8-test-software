@@ -34,11 +34,6 @@ public class PreparedAutomaticUserIO implements AutomaticUserIO {
     }
 
     @Override
-    public void print(String message) {
-        recordedMessages.add(new RecordedMessage(RecordType.OUTPUT, message));
-    }
-
-    @Override
     public void println(String message) {
         recordedMessages.add(new RecordedMessage(RecordType.OUTPUT, message + '\n'));
     }

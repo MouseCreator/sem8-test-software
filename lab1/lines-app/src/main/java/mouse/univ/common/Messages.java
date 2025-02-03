@@ -10,6 +10,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
+/**
+ * Defines and formats the messages regarding the state of the application and the calculation result
+ */
 public class Messages {
     public static String parallel() {
         return "Прямі не перетинаються";
@@ -72,9 +75,5 @@ public class Messages {
 
     public static String terminated() {
         return "Зупинено";
-    }
-
-    public static String restarted() {
-        return "Перезапущено";
     }
 }

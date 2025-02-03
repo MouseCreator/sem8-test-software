@@ -15,6 +15,9 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Test cases
+ */
 class IntersectionCalculatorTest {
     private IntersectionCalculator intersectionCalculator;
     private AutomaticUserIO userInput;

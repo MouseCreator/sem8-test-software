@@ -8,6 +8,9 @@ import org.junit.jupiter.params.aggregator.ArgumentsAggregator;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Aggregates all values of a line from .csv files into a list of strings
+ */
 public class StringListAggregator implements ArgumentsAggregator {
     @Override
     public List<String> aggregateArguments(ArgumentsAccessor accessor,

@@ -4,6 +4,11 @@ import mouse.univ.common.Messages;
 
 import java.util.Scanner;
 
+/**
+ * Main class
+ * Starts the application in user-interactive mode
+ * Prints instructions on how to work with the application
+ */
 public class LinesApp {
     public static void main(String[] args) {
         ConsoleUserIO consoleUserInput = new ConsoleUserIO(System.out, new Scanner(System.in));
