@@ -53,10 +53,10 @@ public final class GenericLine {
             throw new InvalidLineException("Некоректно задана пряма: пряма не може бути задана двома нулевими відрізками; Надайте ненулеві значення параметрам A та B.");
         }
         if (Numbers.isZero(xSegmentLength)) {
-            throw new InvalidLineException("Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.");
+            throw new InvalidLineException("Некоректно задана пряма: пряма не може відтинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.");
         }
         if (Numbers.isZero(ySegmentLength)) {
-            throw new InvalidLineException("Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.");
+            throw new InvalidLineException("Некоректно задана пряма: пряма не може відтинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.");
         }
         double a = ySegmentLength;
         double b = xSegmentLength;

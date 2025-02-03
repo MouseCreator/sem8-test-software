@@ -105,7 +105,7 @@ class IntersectionCalculatorTest {
     @CsvFileSource(resources = "07_missing_input.csv", delimiter = ';')
     void calculate_missingInput(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
-        assertEquals("Відсутнє вхідне значення; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
+        assertEquals("Відсутнє вхідне значення; Введіть ціле десяткове число з проміжку [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
     /**
      * @param inputs - incomplete list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], which ends with a non-integer entry
@@ -116,7 +116,7 @@ class IntersectionCalculatorTest {
     @CsvFileSource(resources = "08_input_not_number.csv", delimiter = ';')
     void calculate_invalidInput(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
-        assertEquals("Вхідне значення не є цілим числом; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
+        assertEquals("Вхідне значення не є цілим числом; Введіть ціле десяткове число з проміжку [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
     /**
      * @param inputs - incomplete list of input parameters [X1;Y1;X2;Y2;A1;B1;A2;B2], which ends with a number out of bounds of the given box
@@ -127,7 +127,7 @@ class IntersectionCalculatorTest {
     @CsvFileSource(resources = "09_input_out_of_bounds.csv", delimiter = ';')
     void calculate_outOfBounds(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
-        assertEquals("Дане вхідне число не входить до проміжку [-122, 122]; Введіть ціле десяткове число з проміжу [-122; 122], будь ласка.\n", userInput.getLastOutput());
+        assertEquals("Дане вхідне число не входить до проміжку [-122, 122]; Введіть ціле десяткове число з проміжку [-122; 122], будь ласка.\n", userInput.getLastOutput());
     }
     /**
      * @param inputs - list of input parameters [X1;Y1;X2;Y2], where X1=X2 and Y1=Y2;
@@ -165,7 +165,7 @@ class IntersectionCalculatorTest {
     @CsvFileSource(resources = "12_line2_err_a.csv", delimiter = ';')
     void calculate_line2Invalid_AZero(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
-        String expectedMessage = "Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.\n";
+        String expectedMessage = "Некоректно задана пряма: пряма не може відтинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.\n";
         expectedMessage += "Введіть параметри прямої ще раз, будь ласка.\n";
         assertEquals(expectedMessage, userInput.getLastOutput());
     }
@@ -178,7 +178,7 @@ class IntersectionCalculatorTest {
     @CsvFileSource(resources = "13_line2_err_b.csv", delimiter = ';')
     void calculate_line2Invalid_BZero(@AggregateWith(StringListAggregator.class) List<String> inputs) {
         runPartialTest(inputs);
-        String expectedMessage = "Некоректно задана пряма: пряма не може віттинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.\n";
+        String expectedMessage = "Некоректно задана пряма: пряма не може відтинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.\n";
         expectedMessage += "Введіть параметри прямої ще раз, будь ласка.\n";
         assertEquals(expectedMessage, userInput.getLastOutput());
     }
@@ -190,6 +190,7 @@ class IntersectionCalculatorTest {
     @DisplayName("ERROR: Line 3 matches Line 2")
     @CsvFileSource(resources = "14_line2_3_match.csv", delimiter = ';')
     void calculate_line3MatchesLine2(@AggregateWith(StringListAggregator.class) List<String> inputs) {
+        runPartialTest(inputs);
         String expectedMessage =
                 "ПРЯМА 3 не може співпадати з ПРЯМОЮ 2.\n" +
                 "Введіть параметри прямої ще раз, будь ласка.\n";

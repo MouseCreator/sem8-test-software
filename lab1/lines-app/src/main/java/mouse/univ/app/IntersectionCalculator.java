@@ -111,10 +111,10 @@ public class IntersectionCalculator {
     }
 
     private int provideRangedIntOrTerminate(String prompt) {
-        String howToFix = String.format(" Введіть ціле десяткове число з проміжу [-%d; %d], будь ласка.", Numbers.BOX_SIZE, Numbers.BOX_SIZE);
+        String howToFix = String.format(" Введіть ціле десяткове число з проміжку [-%d; %d], будь ласка.", Numbers.BOX_SIZE, Numbers.BOX_SIZE);
         while (true) {
             String string = userIO.getString(prompt);
-            if (string.isEmpty()) {
+            if (string == null || string.isEmpty()) {
                 userIO.println("Відсутнє вхідне значення;" + howToFix);
                 continue;
             }
