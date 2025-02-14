@@ -1,5 +1,7 @@
 package mouse.univ.common;
 
+import java.util.List;
+
 /**
  * Number utilities
  */
@@ -14,5 +16,13 @@ public class Numbers {
     }
     public static boolean isOutOfRange(double number) {
         return Math.abs(number) > BOX_SIZE;
+    }
+
+    public static boolean allEquals(List<Double> numbers) {
+        if (numbers.isEmpty()) {
+            return true;
+        }
+        Double first = numbers.getFirst();
+        return numbers.stream().allMatch(f -> equals(f, first));
     }
 }

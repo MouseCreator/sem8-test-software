@@ -76,4 +76,8 @@ public class Messages {
     public static String terminated() {
         return "Зупинено";
     }
+
+    public static String intersection(Point point) {
+        return intersections(List.of(point));
+    }
 }

@@ -2,7 +2,7 @@ package mouse.univ.app;
 
 import mouse.univ.common.Messages;
 import mouse.univ.common.Numbers;
-import mouse.univ.geometry.GenericLine;
+import mouse.univ.geometry.InputArgs;
 import mouse.univ.geometry.InvalidLineException;
 import mouse.univ.geometry.Point;
 
@@ -42,13 +42,13 @@ public class IntersectionCalculator {
     }
 
     private String calculateOrRestart() {
-        List<GenericLine> arguments;
+        InputArgs arguments;
         try {
             arguments = defineArguments();
         } catch (TerminatedException e) {
             return Messages.terminated();
         }
-        String result = getIntersections(arguments.get(0), arguments.get(1), arguments.get(2));
+        String result = new IntersectionDeterminer(arguments).getIntersections();
         userIO.println(result);
         return result;
     }
@@ -57,53 +57,80 @@ public class IntersectionCalculator {
      *
      * @return list of three generic lines, defined by the provided arguments from User IO
      */
-    private List<GenericLine> defineArguments() {
-        GenericLine line1 = null;
-        GenericLine line2 = null;
-        GenericLine line3 = null;
+    private InputArgs defineArguments() {
         userIO.println("Визначіть ПРЯМУ 1 за двома точками (X1; Y1), (X2; Y2)");
-        while (line1 == null) {
+        LineByPointArgs line1Args;
+        while (true) {
             try {
-                LineByPointArgs line1Args = getLine1Arguments();
-                line1 = line1Args.toLine();
+                line1Args = getLine1Arguments();
+                line1Args.validate();
+                break;
             } catch (InvalidLineException e) {
                 onInvalidLineEntered(e.getMessage());
             }
         }
         userIO.println("Визначіть ПРЯМУ 2 за двома відрізкамм. A1 - перетин з віссю OX, B1 - перетин з віссю OY");
-        LineBySegmentsArgs line2Args = null;
-        while (line2 == null) {
+        LineBySegmentsArgs line2Args;
+        while (true) {
             try {
                 line2Args = getLine2Arguments();
-                line2 = line2Args.toLine();
+                line2Args.validate();
+                break;
             } catch (InvalidLineException e) {
                 onInvalidLineEntered(e.getMessage());
             }
         }
         userIO.println("Визначіть ПРЯМУ 3 за двома відрізками. A2 - перетин з віссю OX, B2 - перетин з віссю OY");
-        while (line3 == null) {
+        LineBySegmentsArgs line3Args;
+        while (true) {
             try {
-                LineBySegmentsArgs line3Args = getLine3Arguments();
+                line3Args = getLine3Arguments();
                 if (line3Args.equals(line2Args)) {
                     onInvalidLineEntered("ПРЯМА 3 не може співпадати з ПРЯМОЮ 2.");
                     continue;
                 }
-                line3 = line3Args.toLine();
+                line3Args.validate();
+                break;
             } catch (InvalidLineException e) {
                 onInvalidLineEntered(e.getMessage());
             }
         }
-        return List.of(line1, line2, line3);
+
+        return toInputArguments(line1Args, line2Args, line3Args);
+    }
+
+    private InputArgs toInputArguments(LineByPointArgs line1Args, LineBySegmentsArgs line2Args, LineBySegmentsArgs line3Args) {
+        InputArgs inputArgs = new InputArgs();
+        inputArgs.setX1(line1Args.x1());
+        inputArgs.setY1(line1Args.y1());
+        inputArgs.setX2(line1Args.x2());
+        inputArgs.setY2(line1Args.y2());
+        inputArgs.setA2(line2Args.a());
+        inputArgs.setB2(line2Args.b());
+        inputArgs.setA3(line3Args.a());
+        inputArgs.setB3(line3Args.b());
+        inputArgs.setB3(line3Args.b());
+        return inputArgs;
     }
 
     private record LineByPointArgs(int x1, int y1, int x2, int y2) {
-        GenericLine toLine() throws InvalidLineException {
-            return GenericLine.fromTwoPoints(new Point(x1, y1), new Point(x2, y2));
+        private void validate() throws InvalidLineException {
+            if (new Point(x1, y1).isCloseTo(new Point(x2, y2))) {
+                throw new InvalidLineException("Некоректно задана пряма: пряма не може бути задана двома співпадаючими точками; Спробуйте ввести дві різні точки, щоб побудувати пряму.");
+            }
         }
     }
     private record LineBySegmentsArgs(int a, int b) {
-        GenericLine toLine() throws InvalidLineException {
-            return GenericLine.fromTwoSegments(a, b);
+        private void validate() throws InvalidLineException {
+            if (Numbers.isZero(a) && Numbers.isZero(b)) {
+                throw new InvalidLineException("Некоректно задана пряма: пряма не може бути задана двома нулевими відрізками; Надайте ненулеві значення параметрам A та B.");
+            }
+            if (Numbers.isZero(a)) {
+                throw new InvalidLineException("Некоректно задана пряма: пряма не може відтинати нулевий відрізок на осі OX; Спробуйте ввести ненулеве значення параметра A.");
+            }
+            if (Numbers.isZero(b)) {
+                throw new InvalidLineException("Некоректно задана пряма: пряма не може відтинати нулевий відрізок на осі OY; Спробуйте ввести ненулеве значення параметра B.");
+            }
         }
     }
     private LineByPointArgs getLine1Arguments() {
@@ -158,110 +185,151 @@ public class IntersectionCalculator {
             }
         }
     }
+    private static class IntersectionDeterminer {
+        private final double x1;
+        private final double x2;
+        private final double y1;
+        private final double y2;
+        private final double a2;
+        private final double a3;
+        private final double b2;
+        private final double b3;
 
-    /**
-     * Calculates intersections
-     * @param line1 - LINE 1, defined by two points
-     * @param line2 - LINE 2, defined by two segments
-     * @param line3 = LINE 3, defined by two segments
-     * @return line intersection message
-     */
-    private String getIntersections(GenericLine line1, GenericLine line2, GenericLine line3) {
-        LineIntersectionResult lines1_2Pos = checkLinesIntersect(line1, line2);
-        LineIntersectionResult lines1_3Pos = checkLinesIntersect(line1, line3);
-        if (lines1_2Pos.isSameLine()) {
-            if (lines1_3Pos.isParallelLines()) {
+        public IntersectionDeterminer(InputArgs inputArgs) {
+            this.x1 = inputArgs.getX1();
+            this.x2 = inputArgs.getX2();
+            this.y1 = inputArgs.getY1();
+            this.y2 = inputArgs.getY2();
+            this.a2 = inputArgs.getA2();
+            this.a3 = inputArgs.getA3();
+            this.b2 = inputArgs.getB2();
+            this.b3 = inputArgs.getB3();
+        }
+
+        /**
+         * Calculates intersections
+         *
+         * @return line intersection message
+         */
+        public String getIntersections() {
+            if (isAllParallelLines()) {
                 return Messages.parallel();
-            } else {
-                return Messages.intersections(List.of(lines1_3Pos.intersection()));
             }
-        } else if (lines1_2Pos.isParallelLines()) {
-            if (lines1_3Pos.isParallelLines() || lines1_3Pos.isSameLine()) {
-                return Messages.parallel();
+            if (isOneIntersection()) {
+                return findOneIntersection();
             }
-            LineIntersectionResult lines2_3Pos = checkLinesIntersect(line2, line3);
-            if (lines2_3Pos.isParallelLines()) {
-                return Messages.parallel();
+            if (isTwoIntersections()) {
+                return findTwoIntersections();
             }
-            return Messages.intersections(List.of(lines1_3Pos.intersection(), lines2_3Pos.intersection()));
-        } else if (lines1_2Pos.isIntersectingLines()) {
-            LineIntersectionResult lines2_3Pos = checkLinesIntersect(line2, line3);
-            if (lines1_3Pos.isSameLine()) {
-                return Messages.intersections(List.of(lines1_2Pos.intersection()));
-            }
-            if (lines1_3Pos.isParallelLines()) {
-                return Messages.intersections(List.of(lines1_2Pos.intersection(), lines2_3Pos.intersection()));
-            }
-            if (lines2_3Pos.isParallelLines()) {
-                return Messages.intersections(List.of(lines1_2Pos.intersection(), lines1_3Pos.intersection()));
-            }
-            Point point1 = lines1_2Pos.intersection();
-            Point point2 = lines1_3Pos.intersection();
-            Point point3 = lines2_3Pos.intersection();
-            if (point1.isCloseTo(point2)) {
-                return Messages.intersections(List.of(point1));
-            }
-            return Messages.intersections(List.of(point1, point2, point3));
-        } else {
-            throw new IllegalStateException("Неможливо встановити взаємне положення прямих ПРЯМА 1 та ПРЯМА 2.");
+            return findThreeIntersections();
         }
-    }
-    private enum LinesRelativePosition {
-        SAME_LINE, PARALLEL, INTERSECT
-    }
-
-    private record LineIntersectionResult(LinesRelativePosition relative, Point intersection) {
-        public Point intersection() {
-            if (relative.equals(LinesRelativePosition.INTERSECT) && intersection == null) {
-                throw new IllegalStateException("Положення прямих позначено як INTERSECT, але не задано точки перетину.");
+        private String findTwoIntersections() {
+            if (isLines2And3Parallel()) { // find where line 1 intersect parallel lines 2 and 3
+                return Messages.intersections(List.of(lines1And2Intersection(), lines1And3Intersection()));
             }
-            if (relative.equals(LinesRelativePosition.PARALLEL) || relative.equals(LinesRelativePosition.SAME_LINE)) {
-                throw new IllegalStateException("Неможливо отримати точку перетину для прямих, що не перетинаються.");
+            if (isLines1And3Parallel()) { // find where line 2 intersect parallel lines 1 and 3
+                return Messages.intersections(List.of(lines1And2Intersection(), lines2And3Intersection()));
             }
-            return intersection;
+            if (isLines1And2Parallel()) { // find where line 3 intersect parallel lines 1 and 2
+                return Messages.intersections(List.of(lines1And3Intersection(), lines2And3Intersection()));
+            }
+            throw new IllegalStateException("Не вдалося знайти дві паралельні прямі з даного набору вхідних значень: " + argsList());
         }
 
-        public boolean isSameLine() {
-            return relative.equals(LinesRelativePosition.SAME_LINE);
+        private String argsList() {
+            return List.of(x1, y1, x2, y2, a2, b2, a3, b3).toString();
         }
-        public boolean isParallelLines() {
-            return relative.equals(LinesRelativePosition.PARALLEL);
-        }
-        public boolean isIntersectingLines() {
-            return relative.equals(LinesRelativePosition.INTERSECT);
-        }
-    }
-    private LineIntersectionResult checkLinesIntersect(GenericLine line1, GenericLine line2) {
-        double denominator = line1.a() * line2.b() - line2.a() * line1.b();
-        if (Numbers.isZero(denominator)) {
-            return processZeroDenominatorCase(line1, line2);
-        }
-        double intersectionX = (line2.c() * line1.b() - line1.c() * line2.b()) / denominator;
-        double intersectionY = (line2.a() * line1.c() - line1.a() * line2.c()) / denominator;
-        return new LineIntersectionResult(LinesRelativePosition.INTERSECT, new Point(intersectionX, intersectionY));
-    }
 
-    private LineIntersectionResult processZeroDenominatorCase(GenericLine line1, GenericLine line2) {
-        boolean unmatchedZero = false;
-        if (Numbers.isZero(line1.a()) && !Numbers.isZero(line2.a())) {
-            unmatchedZero = true;
+        private String findThreeIntersections() {
+            return Messages.intersections(List.of(
+                    lines1And2Intersection(),
+                    lines1And3Intersection(),
+                    lines2And3Intersection()
+            ));
         }
-        if (Numbers.isZero(line1.b()) && !Numbers.isZero(line2.b())) {
-            unmatchedZero = true;
+
+        private boolean isTwoIntersections() {
+            if (isLines2And3Parallel()) {
+                return true;
+            }
+            if (isLines1And3Parallel()) {
+                return true;
+            }
+            return isLines1And2Parallel();
         }
-        if (Numbers.isZero(line1.c()) && !Numbers.isZero(line2.c())) {
-            unmatchedZero = true;
+
+        private boolean isLines1And2Parallel() {
+            if (Numbers.equals(x1, x2)) {
+                return false;
+            }
+            return Numbers.equals((y2 - y1) / (x1 - x2), b2 / a2);
         }
-        if (unmatchedZero) {
-            return new LineIntersectionResult(LinesRelativePosition.PARALLEL, null);
+
+        private boolean isLines1And3Parallel() {
+            if (Numbers.equals(x1, x2)) {
+                return false;
+            }
+            return Numbers.equals((y2 - y1) / (x1 - x2), b3 / a3);
         }
-        double aRatio = line1.a() / line2.a();
-        double bRatio = line1.b() / line2.b();
-        double cRatio = line1.c() / line2.c();
-        boolean isSameLine = Numbers.equals(aRatio, bRatio) && Numbers.equals(bRatio, cRatio);
-        return isSameLine
-                ? new LineIntersectionResult(LinesRelativePosition.SAME_LINE, null)
-                : new LineIntersectionResult(LinesRelativePosition.PARALLEL, null);
+
+        private boolean isLines2And3Parallel() {
+            return Numbers.equals(b2 / a2, b3 / a3);
+        }
+
+        private String findOneIntersection() {
+            if (lines1And2Match()) {
+                return Messages.intersection(lines1And3Intersection());
+            }
+            if (lines1And3Match()) {
+                return Messages.intersection(lines1And2Intersection());
+            }
+            return Messages.intersection(lines2And3Intersection());
+
+        }
+
+        private Point lines1And2Intersection() {
+            return new Point(
+                    -a2 * ( x2 * y1 - x1 * y2 + b2 * x1 - b2 * x2 ) / ( (y2 - y1) * a2 - b2 * (x1 - x2) )
+                    , b2 * ( y2 * a2 - y1 * a2 - x1 * y2 + x2 * y1 ) / ( (y2 - y1) * a2 - b2 * (x1 - x2) )
+            );
+        }
+
+        private Point lines2And3Intersection() {
+            return new Point(
+                    a2 * a3 * (b2 - b3) / (b2 * a3 - b3 * a2),
+                    b2 * b3 * (a3 - a2) / (b2 * a3 - b3 * a2)
+            );
+        }
+
+        private Point lines1And3Intersection() {
+            return new Point(
+                    -a3 * ( x2 * y1 - x1 * y2 + b3 * x1 - b3 * x2 ) / ( (y2 - y1) * a3 - b3 * (x1 - x2) )
+                    , b3 * ( y2 * a3 - y1 * a3 - x1 * y2 + x2 * y1 ) / ( (y2 - y1) * a3 - b3 * (x1 - x2) )
+            );
+        }
+
+        private boolean lines1And2Match() {
+            return Numbers.allEquals(List.of((y2 - y1) / b2, (x1 - x2) / a2, (x1 * y2 - x2 * y1) / (b2 * a2)));
+        }
+        private boolean lines1And3Match() {
+            return Numbers.allEquals(List.of((y2 - y1) / b3, (x1 - x2) / a3, (x1 * y2 - x2 * y1) / (b3 * a3)));
+        }
+
+        private boolean isOneIntersection() {
+            return Numbers.equals(
+                    (y2 - y1) * a2 * a3 * (b2 - b3) + (x1 - x2) * b2 * b3 * (a3 - a2),
+                    (x1 * y2 - x2 * y1) * (b2 * a3 - b3 * a2)
+                    );
+        }
+
+        private boolean isAllParallelLines() {
+            if (Numbers.isZero(x1 - x2)) {
+                return false;
+            }
+            return Numbers.allEquals(List.of(
+                    (y2 - y1) / (x1 - x2), b3/a3, b2/a2
+            ));
+        }
     }
 
 }
