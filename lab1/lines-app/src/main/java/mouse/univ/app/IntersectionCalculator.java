@@ -288,23 +288,35 @@ public class IntersectionCalculator {
         }
 
         private Point lines1And2Intersection() {
+            double denominator = (y2 - y1) * a2 - b2 * (x1 - x2);
+            if (Numbers.isZero(denominator)) {
+                throw new IllegalStateException("Прямі 1 та 2 не перетинаються, неможливо знайти точку перетину даних прямих");
+            }
             return new Point(
-                    -a2 * ( x2 * y1 - x1 * y2 + b2 * x1 - b2 * x2 ) / ( (y2 - y1) * a2 - b2 * (x1 - x2) )
-                    , b2 * ( y2 * a2 - y1 * a2 - x1 * y2 + x2 * y1 ) / ( (y2 - y1) * a2 - b2 * (x1 - x2) )
+                    -a2 * ( x2 * y1 - x1 * y2 + b2 * x1 - b2 * x2 ) / denominator
+                    , b2 * ( y2 * a2 - y1 * a2 - x1 * y2 + x2 * y1 ) / denominator
             );
         }
 
         private Point lines2And3Intersection() {
+            double denominator = b2 * a3 - b3 * a2;
+            if (Numbers.isZero(denominator)) {
+                throw new IllegalStateException("Прямі 2 та 3 не перетинаються, неможливо знайти точку перетину даних прямих");
+            }
             return new Point(
-                    a2 * a3 * (b2 - b3) / (b2 * a3 - b3 * a2),
-                    b2 * b3 * (a3 - a2) / (b2 * a3 - b3 * a2)
+                    a2 * a3 * (b2 - b3) / denominator,
+                    b2 * b3 * (a3 - a2) / denominator
             );
         }
 
         private Point lines1And3Intersection() {
+            double denominator = (y2 - y1) * a3 - b3 * (x1 - x2);
+            if (Numbers.isZero(denominator)) {
+                throw new IllegalStateException("Прямі 1 та 3 не перетинаються, неможливо знайти точку перетину даних прямих");
+            }
             return new Point(
-                    -a3 * ( x2 * y1 - x1 * y2 + b3 * x1 - b3 * x2 ) / ( (y2 - y1) * a3 - b3 * (x1 - x2) )
-                    , b3 * ( y2 * a3 - y1 * a3 - x1 * y2 + x2 * y1 ) / ( (y2 - y1) * a3 - b3 * (x1 - x2) )
+                    -a3 * ( x2 * y1 - x1 * y2 + b3 * x1 - b3 * x2 ) / denominator
+                    , b3 * ( y2 * a3 - y1 * a3 - x1 * y2 + x2 * y1 ) / denominator
             );
         }
 
